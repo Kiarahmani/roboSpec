@@ -1,0 +1,6 @@
+[submodule "HighwayEnv"]
+	path = HighwayEnv
+	url = https://github.com/Farama-Foundation/HighwayEnv.git
+[submodule "pips"]
+	path = pips
+	url = https://github.com/aneeshk1412/sor-synthesis.git
