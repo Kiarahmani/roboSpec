@@ -121,6 +121,10 @@ if __name__ == "__main__":
         # if you want to have a fix and same number of samples for each type of transition
         if SAMPLES_NUMBER_PER_TRANSITION > 0:
             sampled_trace = []
+            #sampled_trace = trace[1:]
+
+            
+            # add 10 samples for each type of transition
             samples_map = analyze_trace(trace=trace)
             for k in samples_map.keys():
                 if len(samples_map[k]) >= SAMPLES_NUMBER_PER_TRANSITION:
@@ -129,6 +133,13 @@ if __name__ == "__main__":
                 else:
                     for s in samples_map[k]:
                         sampled_trace.append(s)
+
+            # add the first 50 samples too
+            for i in range(1,50):
+                sample = trace[i]
+                if sample not in sampled_trace:
+                    sampled_trace.append(sample)
+            
             save_trace_to_json(trace=sampled_trace,
                                filename='demos/sampled_demo.json')
             save_trace_to_json(trace=trace, filename='demos/full_demo.json')
@@ -175,7 +186,7 @@ if __name__ == "__main__":
                 # print('State AFTER repair:')
                 # print(pretty_str_state(state=s, iter=i))
                 # only one state should be repaired per iteration
-                if cex_cnt >= 20:
+                if cex_cnt >= 40:
                     break
 
         print('-'*110)

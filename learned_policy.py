@@ -14,10 +14,10 @@ def policy_ldips(state):
 
 
     ### PIPS LEARNED EXPRESSIONS
-    slow_to_fast=((((v_diff) ** 2 / acc) + x_diff) > 29.97933578491211)
-    fast_to_slow=((((x_diff - x_diff) - (x_diff + x_diff)) > -82.984375) and ((((v_diff) ** 2 / acc) - x_diff) > -30.006296157836914))
-    slow_to_slow=(((x_diff - x_diff) - x_diff) > -29.980224609375)
-    fast_to_fast=((v_diff > -0.808102011680603) and (((x_diff + x_diff) - ((v_diff) ** 2 / acc)) > 60.002811431884766))
+    slow_to_fast=((((v_diff) ** 2 / acc) + x_diff) > 29.234102249145508)
+    fast_to_slow=((((x_diff - x_diff) - (x_diff + x_diff)) > -69.7161865234375) and (v_diff < 0.02183300070464611))
+    slow_to_slow=((((v_diff) ** 2 / acc) - (x_diff + x_diff)) > -58.14498519897461)
+    fast_to_fast=(v_diff > -0.13891200721263885)
 
     ###
 

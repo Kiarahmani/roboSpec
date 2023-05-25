@@ -1,3 +1,4 @@
+import datetime
 import os
 from matplotlib import pyplot as plt
 
@@ -43,7 +44,7 @@ def plot_series(policy, trace_1, trace_2):
     plt.grid(True)
     # Set the minimum values of the x and y axes to 0
     plt.xlim(0, None)
-    plt.ylim(0, None)
+    plt.ylim(0, 60)
     plt.minorticks_on()
     plt.grid(True, which='minor', linestyle='--', alpha=0.4)
 
@@ -63,4 +64,7 @@ def plot_series(policy, trace_1, trace_2):
         # Adjust ymin and ymax values for rectangle height
         plt.axvspan(start, end, ymin=0, ymax=0.05, facecolor=color, alpha=0.8)
     # Save the chart as an image file
-    plt.savefig(directory+'distance.png',  dpi=300)
+    timestamp = datetime.datetime.now().strftime("%M%S")
+    # Define the ID string
+    id = f"_{timestamp}"
+    plt.savefig(directory+'distance'+id+'.png',  dpi=300)
