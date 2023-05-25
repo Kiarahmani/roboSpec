@@ -1,236 +1,14 @@
 import json
 import sys
 import os
-
+import random
 import numpy as np
 import gymnasium as gym
 from matplotlib import pyplot as plt
-import matplotlib.patches as mpatches
-
-from highway_env.vehicle.behavior import IDMVehicle
-from highway_env.road.road import Road, Route
-from highway_env.utils import Vector
-import random
-
-from pips.learned_policy import policy_ldips
-
-
-class LDIPSState(object):
-    def __init__(self, state) -> None:
-        self.state = state
-
-    def get(self, name):
-        return self.state[name]["value"]
-
-
-class MyVehicle(IDMVehicle):
-    def __init__(
-        self,
-        road: Road,
-        position: Vector,
-        heading: float = 0,
-        speed: float = 0,
-        target_lane_index: int = None,
-        target_speed: float = None,
-        route: Route = None,
-        enable_lane_change: bool = True,
-        timer: float = None,
-    ):
-        speed = random.choice(
-            _other_speeds
-        )  # Change velocity of car in front using this variable
-        target_speed = speed  # TODO: Not working yet for above 30
-        super().__init__(
-            road, position, heading, speed, target_lane_index, target_speed, route
-        )
-
-
-def dimensionless_template(name, value):
-    return {
-        name: {
-            "dim": [0, 0, 0],
-            "type": "NUM",
-            "name": name,
-            "value": value,
-        }
-    }
-
-
-def distance_template(name, value):
-    return {
-        name: {
-            "dim": [1, 0, 0],
-            "type": "NUM",
-            "name": name,
-            "value": value,
-        }
-    }
-
-
-def speed_template(name, value):
-    return {
-        name: {
-            "dim": [1, -1, 0],
-            "type": "NUM",
-            "name": name,
-            "value": value,
-        }
-    }
-
-
-def acceleration_template(name, value):
-    return {
-        name: {
-            "dim": [1, -2, 0],
-            "type": "NUM",
-            "name": name,
-            "value": value,
-        }
-    }
-
-
-def start_template(value):
-    return {
-        "start": {"dim": [0, 0, 0], "type": "STATE", "name": "start", "value": value}
-    }
-
-
-def output_template(value):
-    return {
-        "output": {"dim": [0, 0, 0], "type": "STATE", "name": "output", "value": value}
-    }
-
-
-def compute_state(obs):
-    """Compute the state in LDIPS format (json object) from the given observation"""
-    return {
-        **distance_template("x_diff", float(obs[1][0] - obs[0][0])),
-        **speed_template("v_diff", float(obs[1][1] - obs[0][1])),
-        **acceleration_template("acc", float(2.0)),
-    }
-
-
-def compute_ldips_state(obs, prev_action):
-    """Compute the LDIPS state in LDIPS format (json object) from the given observation"""
-    return LDIPSState(
-        {
-            **start_template(prev_action),
-            **compute_state(obs),
-        }
-    )
-
-
-def compute_ldips_sample(obs, prev_action, action):
-    """Compute the Full LDIPS sample in LDIPS format (json object) from the given observation"""
-    return LDIPSState(
-        {
-            **start_template(prev_action),
-            **compute_state(obs),
-            **output_template(action),
-        }
-    )
-
-
-def print_debug(reward, done, truncated, state, info):
-    print("Reward: {}, Done: {}, Truncated: {}".format(reward, done, truncated))
-    print(f"State: {state.get('x_diff') = } {state.get('v_diff') = }")
-    print(info)
-    print()
-
-
-def save_trace_to_json(trace, filename="demo.json"):
-    trace_json = json.dumps([s.state for s in trace])
-    with open(filename, "w") as f:
-        f.write(trace_json)
-
-
-def plot_series(policy, trace_1, trace_2):
-    # the initial states in both experiments must be the same
-    assert trace_1[0].state['x_diff']['value'] == trace_2[0].state['x_diff']['value']
-    assert trace_1[0].state['v_diff']['value'] == trace_2[0].state['v_diff']['value']
-    init_v_diff = trace_1[0].state['v_diff']['value']
-    init_dist = trace_1[0].state['x_diff']['value']
-    directory = 'plots/' + str(policy.__name__) + '/'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    # plot x diff
-    plt.clf()
-    diff_series_1 = [x.state['x_diff']['value'] for x in trace_1]
-
-    # Create x-axis values ranging from 0 to the length of the data
-    x1 = range(len(diff_series_1))
-
-    actions = [x.state['output']['value'] for x in trace_1]
-    # Plot the sorted data as a line chart
-
-    if trace_2:
-        diff_series_2 = [x.state['x_diff']['value'] for x in trace_2]
-        x2 = range(len(diff_series_2))
-        plt.plot(x1, diff_series_1, label='ldips')
-        plt.plot(x2, diff_series_2, label='gt')
-        print(f'{trace_2[0].get("x_diff")}', f'{trace_1[0].get("x_diff")}')
-        print(f'{trace_2[0].get("v_diff")}', f'{trace_1[0].get("v_diff")}')
-    else:
-        # if the second trace is not given then this is a simulation of only gt
-        plt.plot(x1, diff_series_1, label='GT')
-
-    # Add the legend
-    plt.legend(loc='upper right')
-
-    # Add labels and title to the chart
-    plt.xlabel('Time (100 ms)')
-    plt.ylabel("Distance (m)")
-    plt.title(f'Distance Between Cars vs. Time\n{init_dist=}\n{init_v_diff=}')
-    plt.grid(True)
-    # Set the minimum values of the x and y axes to 0
-    plt.xlim(0, None)
-    # plt.ylim(0, None)
-    plt.minorticks_on()
-    plt.grid(True, which='minor', linestyle='--', alpha=0.4)
-
-    # Iterate over each action
-    for i, action in enumerate(actions):
-        # Determine the x-coordinate range for the rectangle
-        start = i
-        end = i + 1
-        # Determine the color based on the action
-        if action == 'FASTER':
-            color = 'green'
-        elif action == 'SLOWER':
-            color = 'red'
-        else:
-            color = 'blue'
-        # Add the colored rectangle
-        # Adjust ymin and ymax values for rectangle height
-        plt.axvspan(start, end, ymin=0, ymax=0.05, facecolor=color, alpha=0.8)
-    # Save the chart as an image file
-    plt.savefig(directory+'distance.png')
-
-
-def pretty_str_state(state, iter):
-    pre_action = state.state['start']['value']
-    post_action = state.state['output']['value']
-    distance = state.state['x_diff']['value']
-    # v_self = state.state['v_self']['value']
-    # v_front = state.state['v_front']['value']
-    v_diff = state.state['v_diff']['value']
-    if iter:
-        result = '(' + str(iter) + ') '
-    else:
-        result = ''
-    result += (pre_action + ' -> ' + post_action + ':\n')
-    tab = '   '
-    result += tab + 'distance: ' + str(distance) + '\n'
-    # result += tab + 'v_self: ' + str(v_self) + '\n'
-    # result += tab + 'v_front: ' + str(v_front) + '\n'
-    result += tab + 'v_diff: ' + str(v_diff)
-    return result
-
-
-OTHER_SPEED_RANGE_LOW = 30  # [m/s]
-OTHER_SPEED_RANGE_HIGH = 38  # [m/s]
-OTHER_SPEED_INTERVAL = 1  # [m/s]
+from learned_policy import policy_ldips
+from src.plotter import plot_series
+from src.simulate import *
+from src.utils import analyze_trace, save_trace_to_json
 
 EGO_SPEED_RANGE_LOW = 28  # [m/s]
 EGO_SPEED_RANGE_HIGH = 40  # [m/s]
@@ -248,14 +26,6 @@ D_CRASH = 5  # [m] Distance at which crash occurs in simulation
 
 # set this to any value n>0 if you want to sample n elements for each transition type (e.g. SLOWER->FASTER) to be included in the demo.json
 SAMPLES_NUMBER_PER_TRANSITION = 10
-
-
-_other_speed_num_points = (
-    int(OTHER_SPEED_RANGE_HIGH - OTHER_SPEED_RANGE_LOW) // OTHER_SPEED_INTERVAL + 1
-)
-_other_speeds = np.linspace(
-    OTHER_SPEED_RANGE_LOW, OTHER_SPEED_RANGE_HIGH, _other_speed_num_points
-)
 
 _ego_speed_num_points = (
     int(EGO_SPEED_RANGE_HIGH - EGO_SPEED_RANGE_LOW) // EGO_SPEED_INTERVAL + 1
@@ -288,55 +58,9 @@ config = {
         "target_speeds": _ego_speeds,  # Speed range of ego vehicle
     },
     "vehicles_count": 1,
-    "other_vehicles_type": "highway_one_lane_simulator.MyVehicle",
+    "other_vehicles_type": "src.my_vehicle.MyVehicle",
     "vehicles_density": random.choice(vehicle_densities_choices)
 }
-
-
-def run_simulation(policy, spec, show=False, env=None, init_obs=None):
-    print(policy, env)
-    sat = True
-    
-    count = 0
-    stable_cnt = 0
-    assert init_obs
-    action = 'FASTER'  # let's assume the first action is always 'FASTER'
-    init_state = compute_ldips_sample(init_obs[0], None, action)
-    action_idx = env.action_type.actions_indexes[action]
-    trace = [init_state]
-    while True:
-        count += 1
-        obs, reward, done, truncated, info = env.step(action_idx)
-        prev_action = action
-
-        state = compute_ldips_state(obs, prev_action)
-        action = policy(state)
-        action_idx = env.action_type.actions_indexes[action]
-        assert env.action_space.contains(action_idx)
-
-        sample = compute_ldips_sample(obs, prev_action, action)
-        trace.append(sample)
-
-        # check if stability has been achieved
-        if state.get("x_diff") < 32 and state.get("x_diff") > 28:
-            stable_cnt += 1
-        else:
-            stable_cnt = 0
-
-        if show:
-            env.render()
-        if done:
-            break
-        if truncated or state.get("x_diff") < 0 or stable_cnt > 100:
-            # Corner case when vehicle in front goes out of view
-            # remove last element from history
-            trace.pop()
-            break
-    if not spec(trace):
-        sat = False
-    if show:
-        plt.imshow(env.render())
-    return sat, trace
 
 
 def policy_ground_truth(state):
@@ -377,27 +101,9 @@ def spec_1(trace):
         return True
 
 
-def analyze_trace(trace):
-    result = {('SLOWER', 'SLOWER'): [], ('SLOWER', 'FASTER'): [],
-              ('FASTER', 'FASTER'): [], ('FASTER', 'SLOWER'): []}
-    iter = 0
-    for s in trace:
-        # print(pretty_str_state(s, iter))
-        iter += 1
-        # print('-'*50)
-        pre_action = s.state['start']['value']
-        post_action = s.state['output']['value']
-        result[(pre_action, post_action)].append(s)
-    return result
-
-
-COUNT = int(DURATION * 0.85) * config['policy_frequency']
-DELTA_DISTANCE_MAX = 3  # how much above the desired allowed to go
-
 
 if __name__ == "__main__":
     # set the desired policy
-
     if len(sys.argv) != 2:
         print("Usage: python highway_one_lane_simulator.py <policy>")
         sys.exit(1)
