@@ -175,7 +175,7 @@ if __name__ == "__main__":
                 # print('State AFTER repair:')
                 # print(pretty_str_state(state=s, iter=i))
                 # only one state should be repaired per iteration
-                if cex_cnt >= 30:
+                if cex_cnt >= 20:
                     break
 
         print('-'*110)

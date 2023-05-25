@@ -7,25 +7,16 @@ Effective Synthesis of Robotics Programs from Demonstrations and Safety/Reachabi
 
 ## Run Experiments:
 
-- Go the root directory: `cd roboSpec`
+- 1) Go the root directory: `cd roboSpec`
 
-- Make sure the file `pips/highway_input_demos.json` exists and contains an empty list
+- 2) Run `./scripts/init.sh`
 
-- Make sure the file `demos/repaired_samples.json` exists and contains an empty list
+- 3) Run `./scripts/simul_gt.sh` to generate the initial samples from the ground truth policy.
 
-  
+- 4) Run `./scripts/run_pips.sh` to run pips on the generated samples and write  (Pythonic version of) the learned policy in `learned_policy.py` file. 
 
-#### Generate the initial samples from the ground truth policy:
+- 5) Run `python robo_spec.py ldips`. The behaviors of this policy will be plotted in `plots/policy_ldips/distance.png`.
 
-- run the ground truth using the command `python robo_spec.py gt`. Make sure the plot `plots/policy_ground_truth/distance.png` is updated and the new samples are generated and stored in `demos/sampled_demo.json`
+- 6) Append the repaired samples from the above simulation to the sample file `python scripts/append_repaired_samples.py`
 
-- copy the initial set of samples to the file passed to pips: `cp demos/sampled_demo.json pips/highway_input_demos.json`
-
- 
-#### Run pips on the sampled trace:
-
-- Run pips: `./scripts/run_pips.sh`. This runs pips on samples given in `pips/highway_input_demos.json`, and generates transition expressions stored in `pips/solutions`. Double check the solutions exist. For the runnig example (highway) there should be 4 files, e.g. `pips/solutions/FASTER_FASTER.json`.
-- Translate the pips solutions to python: `python scripts/translate_solutions_to_python.py`. This will translated and write the learned policy into `learned_policy.py` file. 
-
-#### Run the simulator on the learned policy:
- - Run `python robo_spec.py ldips`. This will run the learned policy and plot its trace in `plots/policy_ldips/distance.png`. 
+- Repeat from step 4 to learn a new policy using the repaired samples.
