@@ -4,6 +4,14 @@ Effective Synthesis of Robotics Programs from Demonstrations and Safety/Reachabi
 
   
   
+## Setup:
+- 0) Go the root directory: `cd roboSpec`
+- 1) Run `git submodule update --init --recursive` 
+- 2) `cd pips`
+- 3) `git checkout base`
+- 3) Run `make`
+
+
 
 ## Run Experiments:
 
