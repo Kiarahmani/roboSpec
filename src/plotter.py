@@ -64,7 +64,7 @@ def plot_series(policy, trace_1, trace_2):
         # Adjust ymin and ymax values for rectangle height
         plt.axvspan(start, end, ymin=0, ymax=0.05, facecolor=color, alpha=0.8)
     # Save the chart as an image file
-    timestamp = datetime.datetime.now().strftime("%M%S")
+    timestamp = datetime.datetime.now().strftime("%H%M%S")
     # Define the ID string
     id = f"_{timestamp}"
     plt.savefig(directory+'distance'+id+'.png',  dpi=300)

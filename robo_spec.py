@@ -10,7 +10,7 @@ from src.plotter import plot_series
 from src.simulate import *
 from src.utils import analyze_trace, save_trace_to_json
 
-EGO_SPEED_RANGE_LOW = 28  # [m/s]
+EGO_SPEED_RANGE_LOW = 20  # [m/s]
 EGO_SPEED_RANGE_HIGH = 40  # [m/s]
 EGO_SPEED_INTERVAL = 2  # [m/s]
 
@@ -21,7 +21,7 @@ DESIRED_DISTANCE = 30  # [m] Desired distance between ego and other vehicle
 # [m] Minimum distance between ego and other vehicle in initial state
 MIN_DIST = 10
 # [m] Maximum distance between ego and other vehicle in initial state
-MAX_DIST = 10
+MAX_DIST = 100
 D_CRASH = 5  # [m] Distance at which crash occurs in simulation
 
 # set this to any value n>0 if you want to sample n elements for each transition type (e.g. SLOWER->FASTER) to be included in the demo.json
@@ -59,7 +59,7 @@ config = {
     },
     "vehicles_count": 1,
     "other_vehicles_type": "src.my_vehicle.MyVehicle",
-    "vehicles_density": 3#random.choice(vehicle_densities_choices)
+    "vehicles_density": random.choice(vehicle_densities_choices)
 }
 
 
@@ -101,8 +101,37 @@ def spec_1(trace):
         return True
 
 
-# HACKY CHEATY repair using GT
-def repair_using_gt(gt_policy, ldips_trace):
+# Repair using GT: the human chooses which samples to repair and how many
+def repair_by_human_and_gt(gt_policy, ldips_trace):
+    repaired_samples_json = []
+    while True:
+        user_input = input("Enter an index for repair or 'q' to quit: ")
+        if user_input == 'q':
+            break
+        if user_input.isdigit():
+            index = int(user_input)
+            if index <= 0:
+                continue
+            s = ldips_trace[index]
+            gt_action = gt_policy(s)
+            ldips_action = s.state['output']['value']
+            if ldips_action != gt_action:
+                print(f'Sample repaired at {index=}: {ldips_action} --> {gt_action}')
+            else:
+                print(
+                    f'The action taken by the policy is consistent with the ground-truth at {index=}')
+            s.state['output']['value'] = gt_action
+            repaired_samples_json.append(s.state)
+
+        else:
+            print("Invalid input. Please enter an index or 'q' to quit.")
+    with open('demos/repaired_samples.json', "w") as f:
+        f.write(json.dumps(repaired_samples_json))
+    return repaired_samples_json
+
+
+# Repair using GT: randomly choose samples that differ from gt and repair
+def random_repair_using_gt(gt_policy, ldips_trace, total_repair_cnt):
     repaired_samples_json = []
     cex_cnt = 0
     fast_to_slow_repair = 0
@@ -119,17 +148,13 @@ def repair_using_gt(gt_policy, ldips_trace):
             cex_cnt += 1
             s.state['output']['value'] = gt_action
             repaired_samples_json.append(s.state)
-            if cex_cnt >= 30:
+            if cex_cnt >= total_repair_cnt:
                 break
     print('Repair Stats:', f'{fast_to_slow_repair=}',
           f'{slow_to_fast_repair=}')
     with open('demos/repaired_samples.json', "w") as f:
-            f.write(json.dumps(repaired_samples_json))
+        f.write(json.dumps(repaired_samples_json))
     return repaired_samples_json
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -163,10 +188,10 @@ if __name__ == "__main__":
                         sampled_trace.append(s)
 
             # add the first 50 samples too
-            for i in range(1, 50):
-                sample = trace[i]
-                if sample not in sampled_trace:
-                    sampled_trace.append(sample)
+            #for i in range(1, 50):
+            #    sample = trace[i]
+            #    if sample not in sampled_trace:
+            #        sampled_trace.append(sample)
 
             save_trace_to_json(trace=sampled_trace,
                                filename='demos/sampled_demo.json')
@@ -186,8 +211,13 @@ if __name__ == "__main__":
         trace_ldips.pop()
         # repair some subset of samples using one of the existing repair functions
         print('-'*110)
-        repaired_samples_json = repair_using_gt(
+
+        # choose a strategy for repair
+        # repaired_samples_json = random_repair_using_gt(
+        #    policy_ground_truth, trace_ldips, total_repair_cnt=30)
+        repaired_samples_json = repair_by_human_and_gt(
             policy_ground_truth, trace_ldips)
+
         print('-'*110)
 
     else:

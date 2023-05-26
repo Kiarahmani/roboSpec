@@ -5,6 +5,7 @@
 
 import json
 import os
+from sympy import *
 
 policy_template = """
 ######################################
@@ -14,9 +15,9 @@ policy_template = """
 
 
 def policy_ldips(state):
-    x_diff = state.get("x_diff")
-    v_diff = state.get("v_diff")
-    acc = state.get("acc")
+    x = state.get("x_diff")
+    v = state.get("v_diff")
+    a = state.get("acc")
     #v_self = state.get("v_self")
     #v_front = state.get("v_front")
 
@@ -65,10 +66,11 @@ def translate_node(node):
     elif node["node"] == "Param":
         return translate_parameter(node["value"])
     elif node["node"] == 'Feature':
-      return translate_node(node["value"])
+        return translate_node(node["value"])
     else:
-        #return None
+        # return None
         raise ValueError(f"Unsupported node type: {node['node']}")
+
 
 def translate_operator(op):
     if op == "Gt":
@@ -88,11 +90,13 @@ def translate_operator(op):
     else:
         raise ValueError(f"Unsupported operator: {op}")
 
+
 def translate_parameter(param):
     if param["node"] == "Num":
         return str(param["value"])
     else:
         raise ValueError(f"Unsupported parameter type: {param['node']}")
+
 
 def translate_feature(param):
     if param["node"] == "Var":
@@ -105,27 +109,36 @@ def translate_feature(param):
 current_directory = os.getcwd()
 
 # Get a list of all files in the current directory
-#files = os.listdir(current_directory)
+# files = os.listdir(current_directory)
 files = os.listdir('pips/solutions/')
 
 
 # Filter out only the text files
 text_files = [file for file in files if file.endswith(".json")]
 
+# variables for the simplifier
+x_diff, v_diff, acc = symbols('x_diff v_diff acc')
+
 exps = ''
 # Open and read the contents of each text file
 for file in text_files:
     with open('pips/solutions/'+file, "r") as f:
-        #print(f"{file}:".replace('.json','').replace('_',' -> '))
-        exps += '    '+f"{file}".replace('.json','').replace('_','_to_').lower().replace('er','') + "=" + translate_json_to_expression(f.read()) + '\n'
+        # print(f"{file}:".replace('.json','').replace('_',' -> '))
+        python_exp = translate_json_to_expression(f.read())
+        try:
+            python_exp = simplify(python_exp)
+        except:
+            print ('Expression could not be simplified. Using the original version.')
+
+        exps += '    '+f"{file}".replace('.json', '').replace('_', '_to_').lower().replace('er', '') + " = " + str(python_exp).replace('x_diff', 'x').replace('v_diff', 'v').replace('acc', 'a') + '\n'
 
 
-exps += """\n    # slow_to_fast = ((v_diff**2) / 2 + x_diff >  30) and v_diff > 0
-    # fast_to_slow = ((v_diff**2) / 2 - x_diff > -30) and v_diff < 0
-    # slow_to_slow = ((v_diff**2) / 2 - x_diff > -30) and v_diff < 0
-    # fast_to_fast = ((v_diff**2) / 2 + x_diff >  30) and v_diff > 0"""
+exps += """\n    #GT:\n    # slow_to_fast = ((v**2) / 2 + x >  30) and v > 0
+    # fast_to_slow = ((v**2) / 2 - x > -30) and v < 0
+    # slow_to_slow = ((v**2) / 2 - x > -30) and v < 0
+    # fast_to_fast = ((v**2) / 2 + x >  30) and v > 0"""
 # Specify the file path and the string to write
 file_path = "learned_policy.py"  # Replace with your desired file path
 # Write the string to the file using 'with' statement
 with open(file_path, "w") as file:
-    file.write(policy_template.replace('XXX',exps))
+    file.write(policy_template.replace('XXX', exps))

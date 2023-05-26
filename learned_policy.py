@@ -6,23 +6,24 @@
 
 
 def policy_ldips(state):
-    x_diff = state.get("x_diff")
-    v_diff = state.get("v_diff")
-    acc = state.get("acc")
+    x = state.get("x_diff")
+    v = state.get("v_diff")
+    a = state.get("acc")
     #v_self = state.get("v_self")
     #v_front = state.get("v_front")
 
 
     ### PIPS LEARNED EXPRESSIONS
-    slow_to_fast=((v_diff**2) / 2 + x_diff >  30) and v_diff > 0
-    fast_to_slow=((v_diff < -0.06700299680233002) and ((((v_diff) ** 2 / acc) - x_diff) > -30))
-    slow_to_slow=((((v_diff) ** 2 / acc) - (x_diff)) > -30)
-    fast_to_fast=((v_diff > 0.03611399978399277) and ((v_diff**2) / 2 + x_diff >  30))
+    slow_to_fast = x + v**2/a > 29.98369598388672
+    fast_to_slow = v**2/a > -0.9841269850730896
+    slow_to_slow = x + v**2/a < 30.000648498535156
+    fast_to_fast = x < 29.0164184570313
 
-    # slow_to_fast = ((v_diff**2) / 2 + x_diff >  30) and v_diff > 0
-    # fast_to_slow = ((v_diff**2) / 2 - x_diff > -30) and v_diff < 0
-    # slow_to_slow = ((v_diff**2) / 2 - x_diff > -30) and v_diff < 0
-    # fast_to_fast = ((v_diff**2) / 2 + x_diff >  30) and v_diff > 0
+    #GT:
+    # slow_to_fast = ((v**2) / 2 + x >  30) and v > 0
+    # fast_to_slow = ((v**2) / 2 - x > -30) and v < 0
+    # slow_to_slow = ((v**2) / 2 - x > -30) and v < 0
+    # fast_to_fast = ((v**2) / 2 + x >  30) and v > 0
     ###
 
     pre = state.get("start")
