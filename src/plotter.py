@@ -43,7 +43,7 @@ def plot_series(policy, trace_1, trace_2):
     plt.title(f'Distance Between Cars vs. Time\n{init_dist=}\n{init_v_diff=}')
     plt.grid(True)
     # Set the minimum values of the x and y axes to 0
-    plt.xlim(0, None)
+    plt.xlim(0, 300)
     plt.ylim(0, 60)
     plt.minorticks_on()
     plt.grid(True, which='minor', linestyle='--', alpha=0.4)

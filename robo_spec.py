@@ -12,7 +12,7 @@ from src.utils import analyze_trace, save_trace_to_json
 
 EGO_SPEED_RANGE_LOW = 28  # [m/s]
 EGO_SPEED_RANGE_HIGH = 40  # [m/s]
-EGO_SPEED_INTERVAL = 1  # [m/s]
+EGO_SPEED_INTERVAL = 2  # [m/s]
 
 DURATION = 60  # [s]
 
@@ -59,7 +59,7 @@ config = {
     },
     "vehicles_count": 1,
     "other_vehicles_type": "src.my_vehicle.MyVehicle",
-    "vehicles_density": random.choice(vehicle_densities_choices)
+    "vehicles_density": 3#random.choice(vehicle_densities_choices)
 }
 
 
@@ -101,6 +101,36 @@ def spec_1(trace):
         return True
 
 
+# HACKY CHEATY repair using GT
+def repair_using_gt(gt_policy, ldips_trace):
+    repaired_samples_json = []
+    cex_cnt = 0
+    fast_to_slow_repair = 0
+    slow_to_fast_repair = 0
+    trace_ldips_popped = ldips_trace[1:]
+    random.shuffle(trace_ldips_popped)
+    for i, s in enumerate(trace_ldips_popped):
+        gt_action = gt_policy(s)
+        if s.state['output']['value'] != gt_action:
+            if gt_action == 'FASTER':
+                slow_to_fast_repair += 1
+            else:
+                fast_to_slow_repair += 1
+            cex_cnt += 1
+            s.state['output']['value'] = gt_action
+            repaired_samples_json.append(s.state)
+            if cex_cnt >= 30:
+                break
+    print('Repair Stats:', f'{fast_to_slow_repair=}',
+          f'{slow_to_fast_repair=}')
+    with open('demos/repaired_samples.json', "w") as f:
+            f.write(json.dumps(repaired_samples_json))
+    return repaired_samples_json
+
+
+
+
+
 
 if __name__ == "__main__":
     # set the desired policy
@@ -111,7 +141,7 @@ if __name__ == "__main__":
     if sys.argv[1] == 'gt':
         env = gym.make("highway-v0", render_mode="rgb_array")
         env.configure(config)
-        init_obs=env.reset()
+        init_obs = env.reset()
         sat, trace = run_simulation(
             policy_ground_truth, spec_1, show=True, env=env, init_obs=init_obs)
         plot_series(policy=policy_ground_truth, trace_1=trace, trace_2=None)
@@ -121,9 +151,7 @@ if __name__ == "__main__":
         # if you want to have a fix and same number of samples for each type of transition
         if SAMPLES_NUMBER_PER_TRANSITION > 0:
             sampled_trace = []
-            #sampled_trace = trace[1:]
-
-            
+            # sampled_trace = trace[1:]
             # add 10 samples for each type of transition
             samples_map = analyze_trace(trace=trace)
             for k in samples_map.keys():
@@ -135,11 +163,11 @@ if __name__ == "__main__":
                         sampled_trace.append(s)
 
             # add the first 50 samples too
-            for i in range(1,50):
+            for i in range(1, 50):
                 sample = trace[i]
                 if sample not in sampled_trace:
                     sampled_trace.append(sample)
-            
+
             save_trace_to_json(trace=sampled_trace,
                                filename='demos/sampled_demo.json')
             save_trace_to_json(trace=trace, filename='demos/full_demo.json')
@@ -153,52 +181,14 @@ if __name__ == "__main__":
         env.reset()
         _, trace_gt = run_simulation(
             policy_ground_truth, spec_1, show=True, env=env, init_obs=init_obs)
-
         plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt)
-        # save_trace_to_json(trace=trace, filename='demos/full_demo.json')
-        
         # we don't need the first element other than for plotting purposes
         trace_ldips.pop()
-
-        # HACKY CHEATY repair using GT
-        violation_found = False
-        repaired_samples_json = []
-        cex_cnt = 0
-        fast_to_slow_repair = 0
-        slow_to_fast_repair = 0
-        trace_ldips_popped = trace_ldips[1:]
-        random.shuffle(trace_ldips_popped)
-        for i, s in enumerate(trace_ldips_popped):
-            gt_action = policy_ground_truth(s)
-            if s.state['output']['value'] != gt_action:
-                if gt_action == 'FASTER':
-                    slow_to_fast_repair += 1
-                else:
-                    fast_to_slow_repair += 1
-
-                cex_cnt += 1
-                violation_found = True
-                # print('State BEFORE repair:')
-                # print(pretty_str_state(state=s, iter=i))
-                # print("GT prediction: ", gt_action)
-                s.state['output']['value'] = gt_action
-                repaired_samples_json.append(s.state)
-                # print('State AFTER repair:')
-                # print(pretty_str_state(state=s, iter=i))
-                # only one state should be repaired per iteration
-                if cex_cnt >= 40:
-                    break
-
+        # repair some subset of samples using one of the existing repair functions
         print('-'*110)
-        if violation_found:
-            # print('All repaired samples:\n')
-            # print(repaired_samples_json)
-            print('Repaired sample stats:',
-                  f'{fast_to_slow_repair=}', f'{slow_to_fast_repair=}')
-            # write the repaiered samples into a file
-            with open('demos/repaired_samples.json', "w") as f:
-                f.write(json.dumps(repaired_samples_json))
-        else:
-            print('No violation was found!')
+        repaired_samples_json = repair_using_gt(
+            policy_ground_truth, trace_ldips)
+        print('-'*110)
+
     else:
         raise Exception('policy should be either gt or ldips')

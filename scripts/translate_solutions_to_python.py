@@ -119,6 +119,11 @@ for file in text_files:
         #print(f"{file}:".replace('.json','').replace('_',' -> '))
         exps += '    '+f"{file}".replace('.json','').replace('_','_to_').lower().replace('er','') + "=" + translate_json_to_expression(f.read()) + '\n'
 
+
+exps += """\n    # slow_to_fast = ((v_diff**2) / 2 + x_diff >  30) and v_diff > 0
+    # fast_to_slow = ((v_diff**2) / 2 - x_diff > -30) and v_diff < 0
+    # slow_to_slow = ((v_diff**2) / 2 - x_diff > -30) and v_diff < 0
+    # fast_to_fast = ((v_diff**2) / 2 + x_diff >  30) and v_diff > 0"""
 # Specify the file path and the string to write
 file_path = "learned_policy.py"  # Replace with your desired file path
 # Write the string to the file using 'with' statement
