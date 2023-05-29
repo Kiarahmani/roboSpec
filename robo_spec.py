@@ -213,10 +213,10 @@ if __name__ == "__main__":
         print('-'*110)
 
         # choose a strategy for repair
-        # repaired_samples_json = random_repair_using_gt(
-        #    policy_ground_truth, trace_ldips, total_repair_cnt=30)
-        repaired_samples_json = repair_by_human_and_gt(
-            policy_ground_truth, trace_ldips)
+        repaired_samples_json = random_repair_using_gt(
+            policy_ground_truth, trace_ldips, total_repair_cnt=15)
+        #repaired_samples_json = repair_by_human_and_gt(
+        #    policy_ground_truth, trace_ldips)
 
         print('-'*110)
 

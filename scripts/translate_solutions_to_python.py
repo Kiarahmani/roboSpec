@@ -26,19 +26,20 @@ def policy_ldips(state):
 XXX
     ###
 
+    ### GT
+    # slow_to_fast = ((v**2)/a + x >  30) and v>0
+    # fast_to_slow = ((v**2)/a - x > -30) and v<0
+    ###
+
     pre = state.get("start")
     if pre == "SLOWER":
         if slow_to_fast:
             post = "FASTER"
-        elif slow_to_slow:
-            post = "SLOWER"
         else:
             post = "SLOWER"
     elif pre == "FASTER":
         if fast_to_slow:
             post = "SLOWER"
-        elif fast_to_fast:
-            post = "FASTER"
         else:
             post = "FASTER"
     return post
@@ -60,7 +61,7 @@ def translate_node(node):
     elif node["node"] == "Var":
         return node["name"]
     elif node["node"] == "UnOp" and node["op"] == "Sq":
-        return "(" + translate_node(node["input"]) + ") ** 2"
+        return "(" + translate_node(node["input"]) + ")**2"
     elif node["node"] == "UnOp" and node["op"] == "Halve":
         return "(" + translate_node(node["input"]) + ")/2"
     elif node["node"] == "Param":
@@ -105,6 +106,9 @@ def translate_feature(param):
         raise ValueError(f"Unsupported feature type: {param['node']}")
 
 
+
+
+
 # Get the current directory
 current_directory = os.getcwd()
 
@@ -126,17 +130,13 @@ for file in text_files:
         # print(f"{file}:".replace('.json','').replace('_',' -> '))
         python_exp = translate_json_to_expression(f.read())
         try:
-            python_exp = simplify(python_exp)
+            python_exp = simplify((python_exp))
         except:
             print ('Expression could not be simplified. Using the original version.')
 
         exps += '    '+f"{file}".replace('.json', '').replace('_', '_to_').lower().replace('er', '') + " = " + str(python_exp).replace('x_diff', 'x').replace('v_diff', 'v').replace('acc', 'a') + '\n'
 
 
-exps += """\n    #GT:\n    # slow_to_fast = ((v**2) / 2 + x >  30) and v > 0
-    # fast_to_slow = ((v**2) / 2 - x > -30) and v < 0
-    # slow_to_slow = ((v**2) / 2 - x > -30) and v < 0
-    # fast_to_fast = ((v**2) / 2 + x >  30) and v > 0"""
 # Specify the file path and the string to write
 file_path = "learned_policy.py"  # Replace with your desired file path
 # Write the string to the file using 'with' statement

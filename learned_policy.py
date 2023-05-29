@@ -14,31 +14,25 @@ def policy_ldips(state):
 
 
     ### PIPS LEARNED EXPRESSIONS
-    slow_to_fast = x + v**2/a > 29.98369598388672
-    fast_to_slow = v**2/a > -0.9841269850730896
-    slow_to_slow = x + v**2/a < 30.000648498535156
-    fast_to_fast = x < 29.0164184570313
+    slow_to_fast = ((v > 0.08013299852609634) and ((((v)**2 / a) + x) > 29.55538558959961))
+    fast_to_slow = ((v < 0.028881000354886055) and ((((v)**2 / a) - x) > -30.008771896362305))
 
-    #GT:
-    # slow_to_fast = ((v**2) / 2 + x >  30) and v > 0
-    # fast_to_slow = ((v**2) / 2 - x > -30) and v < 0
-    # slow_to_slow = ((v**2) / 2 - x > -30) and v < 0
-    # fast_to_fast = ((v**2) / 2 + x >  30) and v > 0
+    ###
+
+    ### GT
+    # slow_to_fast = ((v**2)/a + x >  30) and v>0
+    # fast_to_slow = ((v**2)/a - x > -30) and v<0
     ###
 
     pre = state.get("start")
     if pre == "SLOWER":
         if slow_to_fast:
             post = "FASTER"
-        elif slow_to_slow:
-            post = "SLOWER"
         else:
             post = "SLOWER"
     elif pre == "FASTER":
         if fast_to_slow:
             post = "SLOWER"
-        elif fast_to_fast:
-            post = "FASTER"
         else:
             post = "FASTER"
     return post
