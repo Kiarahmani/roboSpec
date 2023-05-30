@@ -2,6 +2,9 @@ import datetime
 import os
 from matplotlib import pyplot as plt
 
+from .utils import save_trace_to_json
+
+
 def plot_series(policy, trace_1, trace_2):
     # the initial states in both experiments must be the same
     if trace_2:
@@ -68,3 +71,14 @@ def plot_series(policy, trace_1, trace_2):
     # Define the ID string
     id = f"_{timestamp}"
     plt.savefig(directory+'distance'+id+'.png',  dpi=300)
+
+    # save the given traces as json
+    if trace_2:
+        save_trace_to_json(trace=trace_1,
+                       filename=directory+'ldips_trace_'+id+'.json')
+        save_trace_to_json(trace=trace_2,
+                       filename=directory+'gt_trace_'+id+'.json')
+    else:
+        save_trace_to_json(trace=trace_1,
+                       filename=directory+'gt_trace_'+id+'.json')
+

@@ -95,9 +95,8 @@ def compute_ldips_sample(obs, prev_action, action):
 
 
 
-def run_simulation(policy, spec, show=False, env=None, init_obs=None):
+def run_simulation(policy, show=False, env=None, init_obs=None):
     print(policy, env)
-    sat = True
     count = 0
     stable_cnt = 0
     assert init_obs
@@ -133,8 +132,6 @@ def run_simulation(policy, spec, show=False, env=None, init_obs=None):
             # remove last element from history
             trace.pop()
             break
-    if not spec(trace):
-        sat = False
     if show:
         plt.imshow(env.render())
-    return sat, trace
+    return trace

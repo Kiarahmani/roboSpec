@@ -168,8 +168,8 @@ if __name__ == "__main__":
         env = gym.make("highway-v0", render_mode="rgb_array")
         env.configure(config)
         init_obs = env.reset()
-        sat, trace = run_simulation(
-            policy_ground_truth, spec_1, show=True, env=env, init_obs=init_obs)
+        trace = run_simulation(
+            policy_ground_truth, show=True, env=env, init_obs=init_obs)
         plot_series(policy=policy_ground_truth, trace_1=trace, trace_2=None)
         # we don't need the first element other than for plotting purposes
         trace.pop()
@@ -202,23 +202,27 @@ if __name__ == "__main__":
         env = gym.make("highway-v0", render_mode="rgb_array")
         env.configure(config)
         init_obs = env.reset()
-        sat, trace_ldips = run_simulation(
-            policy_ldips, spec_1, show=True, env=env, init_obs=init_obs)
+        trace_ldips = run_simulation(
+            policy_ldips, show=True, env=env, init_obs=init_obs)
         env.reset()
-        _, trace_gt = run_simulation(
-            policy_ground_truth, spec_1, show=True, env=env, init_obs=init_obs)
+        trace_gt = run_simulation(
+            policy_ground_truth, show=True, env=env, init_obs=init_obs)
         plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt)
+        
         # we don't need the first element other than for plotting purposes
         trace_ldips.pop()
         
         print('-'*80)
         # repair some subset of samples using one of the existing repair functions
         # CHOOSE A REPAIR STRATEGY
+        # 1
         #repaired_samples_json = random_repair_using_gt(
         #    policy_ground_truth, trace_ldips, total_repair_cnt=15)
-        repaired_samples_json = repair_by_human_and_gt(
-            policy_ground_truth, trace_ldips)
-        #repaired_samples_json = repair_by_spec(trace_ldips)
+        # 2
+        #repaired_samples_json = repair_by_human_and_gt(
+        #    policy_ground_truth, trace_ldips)
+        # 3
+        repaired_samples_json = repair_by_spec(trace_ldips)
 
         # write the repaired samples to a file to be used in the next iterations
         with open('demos/repaired_samples.json', "w") as f:
