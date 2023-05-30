@@ -110,7 +110,7 @@ def repair_by_human_and_gt(gt_policy, ldips_trace):
             break
         if user_input.isdigit():
             index = int(user_input)
-            if index <= 0:
+            if index <= 0 or index >= len(ldips_trace) - 1:
                 continue
             s = ldips_trace[index]
             gt_action = gt_policy(s)
@@ -125,8 +125,6 @@ def repair_by_human_and_gt(gt_policy, ldips_trace):
 
         else:
             print("Invalid input. Please enter an index or 'q' to quit.")
-    with open('demos/repaired_samples.json', "w") as f:
-        f.write(json.dumps(repaired_samples_json))
     return repaired_samples_json
 
 
@@ -152,9 +150,12 @@ def random_repair_using_gt(gt_policy, ldips_trace, total_repair_cnt):
                 break
     print('Repair Stats:', f'{fast_to_slow_repair=}',
           f'{slow_to_fast_repair=}')
-    with open('demos/repaired_samples.json', "w") as f:
-        f.write(json.dumps(repaired_samples_json))
     return repaired_samples_json
+
+
+def repair_by_spec(ldips_trace):
+    return []
+
 
 
 if __name__ == "__main__":
@@ -209,16 +210,20 @@ if __name__ == "__main__":
         plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt)
         # we don't need the first element other than for plotting purposes
         trace_ldips.pop()
+        
+        print('-'*80)
         # repair some subset of samples using one of the existing repair functions
-        print('-'*110)
+        # CHOOSE A REPAIR STRATEGY
+        #repaired_samples_json = random_repair_using_gt(
+        #    policy_ground_truth, trace_ldips, total_repair_cnt=15)
+        repaired_samples_json = repair_by_human_and_gt(
+            policy_ground_truth, trace_ldips)
+        #repaired_samples_json = repair_by_spec(trace_ldips)
 
-        # choose a strategy for repair
-        repaired_samples_json = random_repair_using_gt(
-            policy_ground_truth, trace_ldips, total_repair_cnt=15)
-        #repaired_samples_json = repair_by_human_and_gt(
-        #    policy_ground_truth, trace_ldips)
-
-        print('-'*110)
+        # write the repaired samples to a file to be used in the next iterations
+        with open('demos/repaired_samples.json', "w") as f:
+            f.write(json.dumps(repaired_samples_json))
+        print('-'*80)
 
     else:
         raise Exception('policy should be either gt or ldips')
