@@ -25,7 +25,14 @@ def save_trace_to_json(trace, filename="demo.json"):
     with open(filename, "w") as f:
         f.write(trace_json)
 
-
+def red(text):
+    return "\033[91m" + text + "\033[0m"
+def green(text):
+    return "\033[92m" + text + "\033[0m"
+def orange(text):
+    return "\033[93m" + text + "\033[0m"
+def blue(text):
+    return "\033[94m" + text + "\033[0m"
 
 # takes a trace and returns a map with keys being transitions and values being the samples from the trace
 def analyze_trace(trace):

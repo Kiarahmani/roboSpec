@@ -67,38 +67,22 @@ def policy_ground_truth(state):
     """Ground truth policy."""
     x_diff = state.get("x_diff")
     v_diff = state.get("v_diff")
-
     pre = state.get("start")
-    fast_to_slow = ((v_diff**2) / 2 - x_diff > -
-                    DESIRED_DISTANCE) and v_diff < 0
-    fast_to_fast = ((v_diff**2) / 2 + x_diff > DESIRED_DISTANCE) and v_diff > 0
+
+    fast_to_slow = ((v_diff**2) / 2 - x_diff > -DESIRED_DISTANCE) and v_diff < 0
     slow_to_fast = ((v_diff**2) / 2 + x_diff > DESIRED_DISTANCE) and v_diff > 0
-    slow_to_slow = ((v_diff**2) / 2 - x_diff > -
-                    DESIRED_DISTANCE) and v_diff < 0
 
     if pre == "SLOWER":
         if slow_to_fast:
             post = "FASTER"
-        elif slow_to_slow:
-            post = "SLOWER"
         else:
             post = "SLOWER"
     elif pre == "FASTER":
         if fast_to_slow:
             post = "SLOWER"
-        elif fast_to_fast:
-            post = "FASTER"
         else:
             post = "FASTER"
     return post
-
-
-def spec_1(trace):
-    last_state = trace[-1]
-    if abs(last_state.get("x_diff") - DESIRED_DISTANCE) > 1:
-        return False
-    else:
-        return True
 
 
 # Repair using GT: the human chooses which samples to repair and how many
@@ -116,7 +100,8 @@ def repair_by_human_and_gt(gt_policy, ldips_trace):
             gt_action = gt_policy(s)
             ldips_action = s.state['output']['value']
             if ldips_action != gt_action:
-                print(f'Sample repaired at {index=}: {ldips_action} --> {gt_action}')
+                print(
+                    f'Sample repaired at {index=}: {ldips_action} --> {gt_action}')
             else:
                 print(
                     f'The action taken by the policy is consistent with the ground-truth at {index=}')
@@ -157,11 +142,10 @@ def repair_by_spec(ldips_trace):
     return []
 
 
-
 if __name__ == "__main__":
     # set the desired policy
     if len(sys.argv) != 2:
-        print("Usage: python highway_one_lane_simulator.py <policy>")
+        print("Usage: python robo_spec.py <policy>")
         sys.exit(1)
 
     if sys.argv[1] == 'gt':
@@ -189,7 +173,7 @@ if __name__ == "__main__":
                         sampled_trace.append(s)
 
             # add the first 50 samples too
-            #for i in range(1, 50):
+            # for i in range(1, 50):
             #    sample = trace[i]
             #    if sample not in sampled_trace:
             #        sampled_trace.append(sample)
@@ -208,21 +192,20 @@ if __name__ == "__main__":
         trace_gt = run_simulation(
             policy_ground_truth, show=True, env=env, init_obs=init_obs)
         plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt)
-        
+
         # we don't need the first element other than for plotting purposes
         trace_ldips.pop()
-        
+
         print('-'*80)
         # repair some subset of samples using one of the existing repair functions
         # CHOOSE A REPAIR STRATEGY
         # 1
         #repaired_samples_json = random_repair_using_gt(
-        #    policy_ground_truth, trace_ldips, total_repair_cnt=15)
+        #    policy_ground_truth, trace_ldips, total_repair_cnt=10)
         # 2
-        #repaired_samples_json = repair_by_human_and_gt(
-        #    policy_ground_truth, trace_ldips)
+        repaired_samples_json = repair_by_human_and_gt(policy_ground_truth, trace_ldips)
         # 3
-        repaired_samples_json = repair_by_spec(trace_ldips)
+        # repaired_samples_json = repair_by_spec(trace_ldips)
 
         # write the repaired samples to a file to be used in the next iterations
         with open('demos/repaired_samples.json', "w") as f:
