@@ -21,14 +21,15 @@ def plot_series(policy, trace_1, trace_2):
     diff_series_1 = [x.state['x_diff']['value'] for x in trace_1]
 
     # Create x-axis values ranging from 0 to the length of the data
-    x1 = range(len(diff_series_1))
-
+    x1 = range(0,len(diff_series_1))
+    print (f'{x1=}')
     actions = [x.state['output']['value'] for x in trace_1]
     # Plot the sorted data as a line chart
 
     if trace_2:
         diff_series_2 = [x.state['x_diff']['value'] for x in trace_2]
-        x2 = range(len(diff_series_2))
+        x2 = range(0,len(diff_series_2))
+        print (f'{x2=}')
         plt.plot(x1, diff_series_1, label='ldips')
         plt.plot(x2, diff_series_2, label='gt')
         print(f'{trace_2[0].get("x_diff")}', f'{trace_1[0].get("x_diff")}')
@@ -51,8 +52,10 @@ def plot_series(policy, trace_1, trace_2):
     plt.minorticks_on()
     plt.grid(True, which='minor', linestyle='--', alpha=0.4)
 
-    # Iterate over each action
+    plt.axvspan(0, 1, ymin=0.0, ymax=0.05, facecolor='blue', edgecolor='blue', alpha=1, zorder=5)
     for i, action in enumerate(actions):
+        if i == 0:
+            continue # do not show the first action since it is not part of the demonstration
         # Determine the x-coordinate range for the rectangle
         start = i
         end = i + 1
@@ -65,12 +68,31 @@ def plot_series(policy, trace_1, trace_2):
             color = 'blue'
         # Add the colored rectangle
         # Adjust ymin and ymax values for rectangle height
-        plt.axvspan(start, end, ymin=0, ymax=0.05, facecolor=color, alpha=0.8)
+        plt.axvspan(start, end, ymin=0, ymax=0.05, facecolor=color, alpha=1, zorder=5)
+    if trace_2:
+        # Iterate over each action
+        plt.axvspan(0, 1, ymin=0.05, ymax=0.1, facecolor='orange', edgecolor='orange', alpha=1, zorder=5)
+        for i, action in enumerate([x.state['output']['value'] for x in trace_2]):
+            if i == 0:
+                continue # do not show the first action since it is not part of the demonstration
+            # Determine the x-coordinate range for the rectangle
+            start = i
+            end = i + 1
+            # Determine the color based on the action
+            if action == 'FASTER':
+                color = 'green'
+            elif action == 'SLOWER':
+                color = 'red'
+            else:
+                color = 'blue'
+            # Add the colored rectangle
+            # Adjust ymin and ymax values for rectangle height
+            plt.axvspan(start, end, ymin=0.05, ymax=0.1, facecolor=color, alpha=1, zorder=5)
     # Save the chart as an image file
     timestamp = datetime.datetime.now().strftime("%H%M%S")
     # Define the ID string
     id = f"_{timestamp}"
-    plt.savefig(directory+'distance'+id+'.png',  dpi=300)
+    plt.savefig(directory+'distance'+id+'.png',  dpi=600)
 
     # save the given traces as json
     if trace_2:

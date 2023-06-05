@@ -7,7 +7,7 @@ import numpy as np
 
 
 OTHER_SPEED_RANGE_LOW = 25  # [m/s]
-OTHER_SPEED_RANGE_HIGH = 35  # [m/s]
+OTHER_SPEED_RANGE_HIGH = 25  # [m/s]
 OTHER_SPEED_INTERVAL = 1  # [m/s]
 
 
