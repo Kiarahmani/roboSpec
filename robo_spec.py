@@ -21,7 +21,7 @@ DESIRED_DISTANCE = 30  # [m] Desired distance between ego and other vehicle
 # [m] Minimum distance between ego and other vehicle in initial state
 MIN_DIST = 10
 # [m] Maximum distance between ego and other vehicle in initial state
-MAX_DIST = 100
+MAX_DIST = 10
 D_CRASH = 5  # [m] Distance at which crash occurs in simulation
 
 # set this to any value n>0 if you want to sample n elements for each transition type (e.g. SLOWER->FASTER) to be included in the demo.json
@@ -185,10 +185,12 @@ if __name__ == "__main__":
     elif sys.argv[1] == 'ldips':
         env = gym.make("highway-v0", render_mode="rgb_array")
         env.configure(config)
-        init_obs = env.reset()
+        init_obs = env.reset(seed=5)
+        print (init_obs)
         trace_ldips = run_simulation(
             policy_ldips, show=True, env=env, init_obs=init_obs)
-        env.reset()
+        init2_obs = env.reset(seed=5)
+        print(init2_obs)
         trace_gt = run_simulation(
             policy_ground_truth, show=True, env=env, init_obs=init_obs)
         plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt)
