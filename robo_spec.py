@@ -25,7 +25,7 @@ MAX_DIST = 10
 D_CRASH = 5  # [m] Distance at which crash occurs in simulation
 
 # set this to any value n>0 if you want to sample n elements for each transition type (e.g. SLOWER->FASTER) to be included in the demo.json
-SAMPLES_NUMBER_PER_TRANSITION = 5
+SAMPLES_NUMBER_PER_TRANSITION = 12
 
 _ego_speed_num_points = (
     int(EGO_SPEED_RANGE_HIGH - EGO_SPEED_RANGE_LOW) // EGO_SPEED_INTERVAL + 1
@@ -103,12 +103,11 @@ def repair_by_human_and_gt(gt_policy, ldips_trace):
             if ldips_action != gt_action:
                 print(
                     f'Sample repaired at {index=}: {ldips_action} --> {gt_action}')
+                s.state['output']['value'] = gt_action
+                repaired_samples_json.append(s.state)
             else:
                 print(
                     f'The action taken by the policy is consistent with the ground-truth at {index=}')
-            s.state['output']['value'] = gt_action
-            repaired_samples_json.append(s.state)
-
         else:
             print("Invalid input. Please enter an index or 'q' to quit.")
     return repaired_samples_json
@@ -202,11 +201,11 @@ if __name__ == "__main__":
         # repair some subset of samples using one of the existing repair functions
         # CHOOSE A REPAIR STRATEGY
         # 1
-        # repaired_samples_json = random_repair_using_gt(
-        #    policy_ground_truth, trace_ldips, total_repair_cnt=10)
+        repaired_samples_json = random_repair_using_gt(
+            policy_ground_truth, trace_ldips, total_repair_cnt=10)
         # 2
-        repaired_samples_json = repair_by_human_and_gt(
-            policy_ground_truth, trace_ldips)
+        #repaired_samples_json = repair_by_human_and_gt(
+        #    policy_ground_truth, trace_ldips)
         # 3
         # repaired_samples_json = repair_by_spec(trace_ldips)
 
