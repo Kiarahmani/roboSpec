@@ -25,7 +25,7 @@ MAX_DIST = 10
 D_CRASH = 5  # [m] Distance at which crash occurs in simulation
 
 # set this to any value n>0 if you want to sample n elements for each transition type (e.g. SLOWER->FASTER) to be included in the demo.json
-SAMPLES_NUMBER_PER_TRANSITION = 12
+SAMPLES_NUMBER_PER_TRANSITION = 3
 
 _ego_speed_num_points = (
     int(EGO_SPEED_RANGE_HIGH - EGO_SPEED_RANGE_LOW) // EGO_SPEED_INTERVAL + 1
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         init_obs = env.reset(seed=5)
         trace_gt = run_simulation(
             policy_ground_truth, show=True, env=env, init_obs=init_obs)
-        plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt)
+        plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt, gt_policy=policy_ground_truth)
 
         # we don't need the first element other than for plotting purposes
         trace_ldips.pop()
@@ -201,11 +201,11 @@ if __name__ == "__main__":
         # repair some subset of samples using one of the existing repair functions
         # CHOOSE A REPAIR STRATEGY
         # 1
-        repaired_samples_json = random_repair_using_gt(
-            policy_ground_truth, trace_ldips, total_repair_cnt=10)
+        #repaired_samples_json = random_repair_using_gt(
+        #    policy_ground_truth, trace_ldips, total_repair_cnt=10)
         # 2
-        #repaired_samples_json = repair_by_human_and_gt(
-        #    policy_ground_truth, trace_ldips)
+        repaired_samples_json = repair_by_human_and_gt(
+            policy_ground_truth, trace_ldips)
         # 3
         # repaired_samples_json = repair_by_spec(trace_ldips)
 

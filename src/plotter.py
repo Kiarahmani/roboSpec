@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from .utils import save_trace_to_json
 
 
-def plot_series(policy, trace_1, trace_2):
+def plot_series(policy, trace_1, trace_2, gt_policy=None):
     # the initial states in both experiments must be the same
     if trace_2:
         assert trace_1[0].state['x_diff']['value'] == trace_2[0].state['x_diff']['value']
@@ -52,7 +52,7 @@ def plot_series(policy, trace_1, trace_2):
     plt.minorticks_on()
     plt.grid(True, which='minor', linestyle='--', alpha=0.4)
 
-    plt.axvspan(0, 1, ymin=0.0, ymax=0.05, facecolor='blue', edgecolor='blue', alpha=1, zorder=5)
+    plt.axvspan(0, 1, ymin=0.0+0.025, ymax=0.025+0.025, facecolor='blue', edgecolor='blue', alpha=1, zorder=5)
     for i, action in enumerate(actions):
         if i == 0:
             continue # do not show the first action since it is not part of the demonstration
@@ -68,10 +68,10 @@ def plot_series(policy, trace_1, trace_2):
             color = 'blue'
         # Add the colored rectangle
         # Adjust ymin and ymax values for rectangle height
-        plt.axvspan(start, end, ymin=0, ymax=0.05, facecolor=color, alpha=1, zorder=5)
+        plt.axvspan(start, end, ymin=0+0.025, ymax=0.025+0.025, facecolor=color, alpha=1, zorder=5)
     if trace_2:
         # Iterate over each action
-        plt.axvspan(0, 1, ymin=0.05, ymax=0.1, facecolor='orange', edgecolor='orange', alpha=1, zorder=5)
+        plt.axvspan(0, 1, ymin=0.025+0.025, ymax=0.05+0.025, facecolor='orange', edgecolor='orange', alpha=1, zorder=5)
         for i, action in enumerate([x.state['output']['value'] for x in trace_2]):
             if i == 0:
                 continue # do not show the first action since it is not part of the demonstration
@@ -87,7 +87,40 @@ def plot_series(policy, trace_1, trace_2):
                 color = 'blue'
             # Add the colored rectangle
             # Adjust ymin and ymax values for rectangle height
-            plt.axvspan(start, end, ymin=0.05, ymax=0.1, facecolor=color, alpha=1, zorder=5)
+            plt.axvspan(start, end, ymin=0.025+0.025, ymax=0.05+0.025, facecolor=color, alpha=1, zorder=5)
+
+    if gt_policy:
+        # Iterate over each action
+        for i, s in enumerate(trace_1):
+            if i == 0:
+                continue # do not show the first action since it is not part of the demonstration
+            # Determine the x-coordinate range for the rectangle
+            start = i
+            end = i + 1
+            # Determine the color based on the action
+            if gt_policy(s) == 'FASTER':
+                color = 'green'
+            elif gt_policy(s) == 'SLOWER':
+                color = 'red'
+            else:
+                color = 'blue'
+            # Add the colored rectangle
+            # Adjust ymin and ymax values for rectangle height
+            plt.axvspan(start, end, ymin=0, ymax=0.025, facecolor=color, alpha=1, zorder=5)
+
+    # Add labels for the series
+    if trace_2:
+        plt.text(-30, 1.5, 'ldips', va='bottom', fontsize=5)
+        plt.text(-30, 3, 'gt', va='bottom', fontsize=5)
+        if gt_policy:
+            plt.text(-30, 0, 'gt_ldips', va='bottom', fontsize=5)
+    else:
+        plt.text(0, 0.015, 'GT', va='bottom')
+
+    # Draw thin black lines between the series
+    plt.axhline(y=0.025, color='black', linewidth=0.5)
+    plt.axhline(y=0.05, color='black', linewidth=0.5)
+
     # Save the chart as an image file
     timestamp = datetime.datetime.now().strftime("%H%M%S")
     # Define the ID string
