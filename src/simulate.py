@@ -127,7 +127,7 @@ def run_simulation(policy, show=False, env=None, init_obs=None):
             env.render()
         if done:
             break
-        if truncated or state.get("x_diff") < 0 or stable_cnt > 130:
+        if truncated or state.get("x_diff") < 0 or stable_cnt > 130 or count > 300:
             # Corner case when vehicle in front goes out of view
             # remove last element from history
             trace.pop()

@@ -7,16 +7,19 @@ from .utils import save_trace_to_json
 
 
 
-def plot_single_series(trace, gt_policy, specs, directory):
+def plot_single_series(trace, gt_policy, specs, directory, synthesis_data):
     _DRAW_ACTION_MARKERS = True
     _DRAW_SPECS = True
-
 
     init_v_diff = trace[0].state['v_diff']['value']
     init_dist = trace[0].state['x_diff']['value']
     directory = 'plots/' + directory + '/'
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+    # Set figure size and adjust subplots
+    fig = plt.figure(figsize=(10, 7))
+
     # plot x diff
     plt.clf()
     x_diff_series = [x.state['x_diff']['value'] for x in trace]
@@ -33,7 +36,7 @@ def plot_single_series(trace, gt_policy, specs, directory):
     # Add labels and title to the chart
     plt.xlabel('Time (×0.1s)')
     plt.ylabel("Distance (m)")
-    plt.title(f'Distance Between Cars vs. Time\n{init_dist=}\n{init_v_diff=}')
+    plt.title(f'Distance Between Cars vs. Time')
     plt.grid(True)
     # Set the minimum values of the x and y axes to 0
     plt.xlim(0, 300)
@@ -71,14 +74,31 @@ def plot_single_series(trace, gt_policy, specs, directory):
                 spec_color = 'green' if  all([s.is_sat(x,x_diff_value) for s in specs]) else 'red'
                 plt.axvspan(start, end, ymin=0.075, ymax=0.1, facecolor=spec_color, alpha=1, zorder=5)
         # show labels for markers
-        plt.text(-40, -8, 'cand acts', va='bottom', fontsize=5)
+        plt.text(-40, -8, 'cand acts', va='bottom', fontsize=8)
         # show labels for markers
-        plt.text(-40, -6, 'GT acts', va='bottom', fontsize=5)
+        plt.text(-40, -6, 'GT acts', va='bottom', fontsize=8)
         # show labels for mismatch
-        plt.text(-40, -4, 'Mismatch?', va='bottom', fontsize=5)
+        plt.text(-40, -4, 'Mismatch?', va='bottom', fontsize=8)
         if _DRAW_SPECS:
             # show labels for specs
-            plt.text(-40, -2, 'Specs SAT?', va='bottom', fontsize=5)
+            plt.text(-40, -2, 'Specs SAT?', va='bottom', fontsize=8)
+
+
+
+    # PRINT INFO AT THE TOP-LEFT OF THE PLOT
+    # \n{init_dist=}\n{init_v_diff=}
+    x_diff_0 = round(init_dist,2)
+    v_diff_0 = round(init_v_diff,2)
+    
+    plt.text(3, 68, f'{x_diff_0=}', va='bottom', fontsize=8)
+    plt.text(3, 66, f'{v_diff_0=}', va='bottom', fontsize=8)
+
+    if 'no_samples' in synthesis_data:
+        no_samples = synthesis_data['no_samples']
+        plt.text(3, 64, f'{no_samples=}', va='bottom', fontsize=8)
+        with open('logs/learned_expressions.txt', "r") as file:
+            exps = file.read()
+            plt.text(52, 66, exps[:-1], va='bottom', fontsize=8)
 
 
 
@@ -89,7 +109,7 @@ def plot_single_series(trace, gt_policy, specs, directory):
     id = f"_{timestamp}"
     plt.savefig(directory+'distance'+id+'.png',  dpi=600)
     # save the given traces as json
-    save_trace_to_json(trace=trace, filename=directory+'gt_trace_'+id+'.json')
+    # save_trace_to_json(trace=trace, filename=directory+'trace_'+id+'.json')
 
 
 

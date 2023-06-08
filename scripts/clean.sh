@@ -1,5 +1,6 @@
 rm ./pips/solutions/*.json
 rm ./demos/*.json 
+rm ./logs/*.txt 
 rm ./pips/highway_input_demos.json 
 rm ./plots/policy_ldips/*.png
 rm ./plots/policy_ground_truth/*.png

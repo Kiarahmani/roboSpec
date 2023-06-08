@@ -106,9 +106,6 @@ def translate_feature(param):
         raise ValueError(f"Unsupported feature type: {param['node']}")
 
 
-
-
-
 # Get the current directory
 current_directory = os.getcwd()
 
@@ -132,9 +129,10 @@ for file in text_files:
         try:
             python_exp = simplify((python_exp))
         except:
-            print ('Expression could not be simplified. Using the original version.')
+            print('Expression could not be simplified. Using the original version.')
 
-        exps += '    '+f"{file}".replace('.json', '').replace('_', '_to_').lower().replace('er', '') + " = " + str(python_exp).replace('x_diff', 'x').replace('v_diff', 'v').replace('acc', 'a') + '\n'
+        exps += '    '+f"{file}".replace('.json', '').replace('_', '_to_').lower().replace('er', '') + " = " + str(
+            python_exp).replace('x_diff', 'x').replace('v_diff', 'v').replace('acc', 'a') + '\n'
 
 
 # Specify the file path and the string to write
@@ -142,3 +140,6 @@ file_path = "learned_policy.py"  # Replace with your desired file path
 # Write the string to the file using 'with' statement
 with open(file_path, "w") as file:
     file.write(policy_template.replace('XXX', exps))
+# Log the expressions
+with open('logs/learned_expressions.txt', "w") as file:
+    file.write(exps.replace('    ',''))
