@@ -151,7 +151,7 @@ if __name__ == "__main__":
     if sys.argv[1] == 'gt':
         env = gym.make("highway-v0", render_mode="rgb_array")
         env.configure(config)
-        init_obs = env.reset()
+        init_obs = env.reset(seed=5)
         trace = run_simulation(
             policy_ground_truth, show=True, env=env, init_obs=init_obs)
         plot_series(policy=policy_ground_truth, trace_1=trace, trace_2=None)

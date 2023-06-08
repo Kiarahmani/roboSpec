@@ -1,8 +1,7 @@
 import datetime
 import os
 from matplotlib import pyplot as plt
-
-from .utils import save_trace_to_json
+from .utils import draw_spec, save_trace_to_json
 
 
 def plot_series(policy, trace_1, trace_2, gt_policy=None):
@@ -21,15 +20,15 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
     diff_series_1 = [x.state['x_diff']['value'] for x in trace_1]
 
     # Create x-axis values ranging from 0 to the length of the data
-    x1 = range(0,len(diff_series_1))
-    print (f'{x1=}')
+    x1 = range(0, len(diff_series_1))
+    print(f'{x1=}')
     actions = [x.state['output']['value'] for x in trace_1]
     # Plot the sorted data as a line chart
 
     if trace_2:
         diff_series_2 = [x.state['x_diff']['value'] for x in trace_2]
-        x2 = range(0,len(diff_series_2))
-        print (f'{x2=}')
+        x2 = range(0, len(diff_series_2))
+        print(f'{x2=}')
         plt.plot(x1, diff_series_1, label='ldips')
         plt.plot(x2, diff_series_2, label='gt')
         print(f'{trace_2[0].get("x_diff")}', f'{trace_1[0].get("x_diff")}')
@@ -52,10 +51,11 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
     plt.minorticks_on()
     plt.grid(True, which='minor', linestyle='--', alpha=0.4)
 
-    plt.axvspan(0, 1, ymin=0.0+0.025, ymax=0.025+0.025, facecolor='blue', edgecolor='blue', alpha=1, zorder=5)
+    plt.axvspan(0, 1, ymin=0.0+0.025, ymax=0.025+0.025,
+                facecolor='blue', edgecolor='blue', alpha=1, zorder=5)
     for i, action in enumerate(actions):
         if i == 0:
-            continue # do not show the first action since it is not part of the demonstration
+            continue  # do not show the first action since it is not part of the demonstration
         # Determine the x-coordinate range for the rectangle
         start = i
         end = i + 1
@@ -68,13 +68,15 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
             color = 'blue'
         # Add the colored rectangle
         # Adjust ymin and ymax values for rectangle height
-        plt.axvspan(start, end, ymin=0+0.025, ymax=0.025+0.025, facecolor=color, alpha=1, zorder=5)
+        plt.axvspan(start, end, ymin=0+0.025, ymax=0.025 +
+                    0.025, facecolor=color, alpha=1, zorder=5)
     if trace_2:
         # Iterate over each action
-        plt.axvspan(0, 1, ymin=0.025+0.025, ymax=0.05+0.025, facecolor='orange', edgecolor='orange', alpha=1, zorder=5)
+        plt.axvspan(0, 1, ymin=0.025+0.025, ymax=0.05+0.025,
+                    facecolor='orange', edgecolor='orange', alpha=1, zorder=5)
         for i, action in enumerate([x.state['output']['value'] for x in trace_2]):
             if i == 0:
-                continue # do not show the first action since it is not part of the demonstration
+                continue  # do not show the first action since it is not part of the demonstration
             # Determine the x-coordinate range for the rectangle
             start = i
             end = i + 1
@@ -87,13 +89,14 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
                 color = 'blue'
             # Add the colored rectangle
             # Adjust ymin and ymax values for rectangle height
-            plt.axvspan(start, end, ymin=0.025+0.025, ymax=0.05+0.025, facecolor=color, alpha=1, zorder=5)
+            plt.axvspan(start, end, ymin=0.025+0.025, ymax=0.05 +
+                        0.025, facecolor=color, alpha=1, zorder=5)
 
     if gt_policy:
         # Iterate over each action
         for i, s in enumerate(trace_1):
             if i == 0:
-                continue # do not show the first action since it is not part of the demonstration
+                continue  # do not show the first action since it is not part of the demonstration
             # Determine the x-coordinate range for the rectangle
             start = i
             end = i + 1
@@ -106,7 +109,8 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
                 color = 'blue'
             # Add the colored rectangle
             # Adjust ymin and ymax values for rectangle height
-            plt.axvspan(start, end, ymin=0, ymax=0.025, facecolor=color, alpha=1, zorder=5)
+            plt.axvspan(start, end, ymin=0, ymax=0.025,
+                        facecolor=color, alpha=1, zorder=5)
 
     # Add labels for the series
     if trace_2:
@@ -121,6 +125,18 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
     plt.axhline(y=0.025, color='black', linewidth=0.5)
     plt.axhline(y=0.05, color='black', linewidth=0.5)
 
+    # the linear spec 1
+    x, y1, y2 = draw_spec(0, 10.5, 45, 23, 5)
+    plt.fill_between(x, y1, y2, where=(y1 > y2), color='red', alpha=0.2)
+
+    # the linear spec 2
+    x, y1, y2 = draw_spec(45, 23, 100, 29.8, 3)
+    plt.fill_between(x, y1, y2, where=(y1 > y2), color='orange', alpha=0.2)
+
+    # the linear spec 3
+    x, y1, y2 = draw_spec(100, 30, 300, 30, 2)
+    plt.fill_between(x, y1, y2, where=(y1 > y2), color='green', alpha=0.2)
+
     # Save the chart as an image file
     timestamp = datetime.datetime.now().strftime("%H%M%S")
     # Define the ID string
@@ -130,10 +146,9 @@ def plot_series(policy, trace_1, trace_2, gt_policy=None):
     # save the given traces as json
     if trace_2:
         save_trace_to_json(trace=trace_1,
-                       filename=directory+'ldips_trace_'+id+'.json')
+                           filename=directory+'ldips_trace_'+id+'.json')
         save_trace_to_json(trace=trace_2,
-                       filename=directory+'gt_trace_'+id+'.json')
+                           filename=directory+'gt_trace_'+id+'.json')
     else:
         save_trace_to_json(trace=trace_1,
-                       filename=directory+'gt_trace_'+id+'.json')
-
+                           filename=directory+'gt_trace_'+id+'.json')

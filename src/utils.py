@@ -1,4 +1,6 @@
 import json
+import numpy as np
+
 
 def pretty_str_state(state, iter):
     pre_action = state.state['start']['value']
@@ -19,6 +21,16 @@ def pretty_str_state(state, iter):
     result += tab + 'v_diff: ' + str(v_diff)
     return result
 
+def draw_spec(x1,y1,x2,y2,w):
+        a = (y2-y1)/(x2-x1) # slope
+        b = y1-x1*a  # intercept
+        # calculate intercept of the edges
+        c1 = b+w/2  # y-intercept of first line
+        c2 = b-w/2  # y-intercept of second line 
+        x = np.linspace(x1, x2, 1000)
+        y1 = a * x + c1
+        y2 = a * x + c2
+        return x, y1, y2
 
 def save_trace_to_json(trace, filename="demo.json"):
     trace_json = json.dumps([s.state for s in trace])
