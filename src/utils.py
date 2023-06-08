@@ -21,7 +21,7 @@ def pretty_str_state(state, iter):
     result += tab + 'v_diff: ' + str(v_diff)
     return result
 
-def draw_spec(x1,y1,x2,y2,w):
+def DEPRECATED_draw_spec(x1,y1,x2,y2,w):
         a = (y2-y1)/(x2-x1) # slope
         b = y1-x1*a  # intercept
         # calculate intercept of the edges

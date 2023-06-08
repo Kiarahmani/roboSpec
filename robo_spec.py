@@ -5,8 +5,9 @@ import random
 import numpy as np
 import gymnasium as gym
 from matplotlib import pyplot as plt
+from src.Spec import Spec
 from learned_policy import policy_ldips
-from src.plotter import plot_series
+from src.plotter import  plot_single_series
 from src.simulate import *
 from src.utils import analyze_trace, save_trace_to_json
 
@@ -83,6 +84,8 @@ def policy_ground_truth(state):
             post = "SLOWER"
         else:
             post = "FASTER"
+    else:
+        raise Exception(f'unknown {pre=}')
     return post
 
 
@@ -148,13 +151,19 @@ if __name__ == "__main__":
         print("Usage: python robo_spec.py <policy>")
         sys.exit(1)
 
+    # define specs
+    specs = [Spec('include', 0, 10.5, 45, 23, 5, 'green'), Spec('include', 45, 23, 100, 29.8, 3, 'green'), Spec(
+        'include', 100, 30, 300, 30, 2, 'green'), Spec('exclude', 0, 2.5, 300, 2.5, 5, 'red')]
+
     if sys.argv[1] == 'gt':
         env = gym.make("highway-v0", render_mode="rgb_array")
         env.configure(config)
         init_obs = env.reset(seed=5)
         trace = run_simulation(
             policy_ground_truth, show=True, env=env, init_obs=init_obs)
-        plot_series(policy=policy_ground_truth, trace_1=trace, trace_2=None)
+        # plot_series(policy=policy_ground_truth, trace_1=trace, trace_2=None)
+        plot_single_series(trace=trace[1:], gt_policy=policy_ground_truth,
+                           specs=specs, directory='policy_ground_truth')
         # we don't need the first element other than for plotting purposes
         trace.pop()
 
@@ -190,9 +199,14 @@ if __name__ == "__main__":
         trace_ldips = run_simulation(
             policy_ldips, show=True, env=env, init_obs=init_obs)
         init_obs = env.reset(seed=5)
-        trace_gt = run_simulation(
-            policy_ground_truth, show=True, env=env, init_obs=init_obs)
-        plot_series(policy=policy_ldips, trace_1=trace_ldips, trace_2=trace_gt, gt_policy=policy_ground_truth)
+        trace_gt = []  # run_simulation(
+        # policy_ground_truth, show=True, env=env, init_obs=init_obs)
+
+        # plot_series(policy=policy_ldips, trace_1=trace_ldips,
+        #            trace_2=trace_gt, gt_policy=policy_ground_truth, specs=specs)
+
+        plot_single_series(
+            trace=trace_ldips[1:], gt_policy=policy_ground_truth, specs=specs, directory='policy_ldips')
 
         # we don't need the first element other than for plotting purposes
         trace_ldips.pop()
@@ -201,17 +215,16 @@ if __name__ == "__main__":
         # repair some subset of samples using one of the existing repair functions
         # CHOOSE A REPAIR STRATEGY
         # 1
-        #repaired_samples_json = random_repair_using_gt(
+        # repaired_samples_json = random_repair_using_gt(
         #    policy_ground_truth, trace_ldips, total_repair_cnt=10)
         # 2
-        repaired_samples_json = repair_by_human_and_gt(
-            policy_ground_truth, trace_ldips)
+        repaired_samples_json = repair_by_human_and_gt(policy_ground_truth, trace_ldips)
         # 3
         # repaired_samples_json = repair_by_spec(trace_ldips)
 
         # write the repaired samples to a file to be used in the next iterations
         with open('demos/repaired_samples.json', "w") as f:
-            f.write(json.dumps(repaired_samples_json))
+                f.write(json.dumps(repaired_samples_json))
         print('-'*80)
 
     else:
