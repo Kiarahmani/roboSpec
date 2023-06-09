@@ -153,8 +153,8 @@ if __name__ == "__main__":
 
     # define specs
     specs = [Spec('include', 0, 10.5, 45, 23, 5, 'green'), Spec('include', 45, 23, 100, 29.8, 3, 'green'), Spec(
-        'include', 100, 30, 300, 30, 2, 'green')#, Spec('exclude', 0, 2.5, 300, 2.5, 5, 'red')
-        ]
+        'include', 100, 30, 300, 30, 2, 'green')  # , Spec('exclude', 0, 2.5, 300, 2.5, 5, 'red')
+    ]
 
     if sys.argv[1] == 'gt':
         env = gym.make("highway-v0", render_mode="rgb_array")
@@ -199,8 +199,8 @@ if __name__ == "__main__":
         init_obs = env.reset(seed=5)
         trace_ldips = run_simulation(
             policy_ldips, show=True, env=env, init_obs=init_obs)
-        init_obs = env.reset(seed=5) 
-        
+        init_obs = env.reset(seed=5)
+
         with open('pips/highway_input_demos.json', 'r') as file:
             samples = json.load(file)
             no_samples = len(samples)
