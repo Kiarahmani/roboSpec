@@ -88,6 +88,8 @@ def translate_operator(op):
         return "and"
     elif op == "Or":
         return "or"
+    elif op == 'Times':
+        return '*'
     else:
         raise ValueError(f"Unsupported operator: {op}")
 

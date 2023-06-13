@@ -42,7 +42,7 @@ def plot_single_series(trace, gt_policy, specs, directory, synthesis_data):
     plt.xlim(0, 300)
     plt.ylim(-8, 70)
     plt.minorticks_on()
-    plt.grid(True, which='minor', linestyle='--', alpha=0.3)
+    plt.grid(True, which='minor', linestyle='-', alpha=0.3)
 
     if _DRAW_SPECS:
         for spec in specs:
@@ -101,6 +101,7 @@ def plot_single_series(trace, gt_policy, specs, directory, synthesis_data):
             plt.text(52, 66, exps[:-1], va='bottom', fontsize=8)
 
 
+    plt.xticks(range(0, 300, 10),fontsize=6)
 
     # SAVE THINGS TO FILES
     # Save the chart as an image file
@@ -109,7 +110,7 @@ def plot_single_series(trace, gt_policy, specs, directory, synthesis_data):
     id = f"_{timestamp}"
     plt.savefig(directory+'distance'+id+'.png',  dpi=600)
     # save the given traces as json
-    # save_trace_to_json(trace=trace, filename=directory+'trace_'+id+'.json')
+    #save_trace_to_json(trace=trace, filename=directory+'trace_'+id+'.json')
 
 
 

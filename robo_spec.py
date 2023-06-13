@@ -89,8 +89,12 @@ def policy_ground_truth(state):
     return post
 
 
+def flip_action(a):
+    assert a in {'SLOWER', 'FASTER'}
+    return 'SLOWER' if a == 'FASTER' else 'FASTER'
+
 # Repair using GT: the human chooses which samples to repair and how many
-def repair_by_human_and_gt(gt_policy, ldips_trace):
+def repair_by_human_and_gt(gt_policy, ldips_trace, over_ride_gt=False):
     repaired_samples_json = []
     while True:
         user_input = input("Enter an index for repair or 'q' to quit: ")
@@ -103,14 +107,14 @@ def repair_by_human_and_gt(gt_policy, ldips_trace):
             s = ldips_trace[index]
             gt_action = gt_policy(s)
             ldips_action = s.state['output']['value']
-            if ldips_action != gt_action:
+            if ldips_action != gt_action or over_ride_gt:
                 print(
                     f'Sample repaired at {index=}: {ldips_action} --> {gt_action}')
-                s.state['output']['value'] = gt_action
+                s.state['output']['value'] = flip_action(ldips_action)
                 repaired_samples_json.append(s.state)
             else:
                 print(
-                    f'The action taken by the policy is consistent with the ground-truth at {index=}')
+                    f'The action taken by the policy is consistent with the ground-truth at {index=}, {gt_action=}')
         else:
             print("Invalid input. Please enter an index or 'q' to quit.")
     return repaired_samples_json
@@ -141,8 +145,98 @@ def random_repair_using_gt(gt_policy, ldips_trace, total_repair_cnt):
     return repaired_samples_json
 
 
-def repair_by_spec(ldips_trace):
-    return []
+# repair by heuristics
+def semi_automatic_repair(specs, trace):
+    repair_range = 4
+    repaired_samples_json = []
+    # manually choose the spec for repair
+    #spec_idx = 'a'
+    #while (not spec_idx.isdigit()):
+    #    spec_idx = input("Enter the index of the spec to be used for repair:")
+    #spec = specs[int(spec_idx)]
+    
+    # search and find the first spec that is violated
+    spec = None
+    for iter in specs:
+        if any([not iter.is_sat(x=x, y=s.state['x_diff']['value']) for x,s in enumerate(trace)]):
+            spec = iter
+            break
+    if not spec:
+        print ('All specs are satisfied')
+        return []
+    
+    print(f"Attempting to repair using the given spec {str(spec)}")
+    first_violation_point = None
+    action_taken_at_violation = None
+    for x, s in enumerate(trace):
+        y = s.state['x_diff']['value']
+        a = s.state['output']['value']
+        #print (x, round(y,2), a, spec.is_sat(x=x, y=y))
+        if not spec.is_sat(x=x, y=y):
+            first_violation_point = (x, y)
+            action_taken_at_violation = a
+            break
+
+    if not first_violation_point:
+        print('The spec is not violated in the given trace')
+    else:
+        v_x, v_y = first_violation_point
+        first_violation_tp = 'L' if spec.get_min_valid_y(v_x) > v_y else 'U'
+        print(f'The chosen spec is violated first at index={v_x}')
+        print(
+            f'Searching for an index to repair based on type of violation:{first_violation_tp}')
+        print (f'Action taken at the time of violation: {action_taken_at_violation}')
+        ###############################
+        if first_violation_tp == 'L':
+            if action_taken_at_violation == 'FASTER': # Wrong action at the violation time
+                # Repair the actions in a window of time before violation
+                for repair_iter in range(repair_range):
+                    s = trace[v_x - repair_iter + 1]
+                    if s.state['output']['value'] == 'FASTER':  
+                        s.state['output']['value'] = 'SLOWER'
+                        print (f'Repair Suggestion: at index={v_x - repair_iter}, action FASTER needs to be updated to SLOWER')
+                        repaired_samples_json.append(s.state)                
+            elif action_taken_at_violation == 'SLOWER': # Correct action at the violation time
+                repair_idx = v_x
+                while repair_idx >= 0:
+                    s = trace[repair_idx]
+                    a = s.state['output']['value']
+                    if a != action_taken_at_violation:
+                        # Switch to the correct action earlier
+                        s.state['output']['value'] = 'SLOWER'
+                        repaired_samples_json.append(s.state)
+                        print (f'Repair Suggestion: at index={repair_idx}, action FASTER needs to be updated to SLOWER')
+                        break
+                    repair_idx -= 1
+            else:
+                raise Exception('unexpected action type')
+        ###############################
+        elif first_violation_tp == 'U':
+            if action_taken_at_violation == 'SLOWER': # Wrong action at the violation time
+                # Repair the actions in a window of time before violation
+                for repair_iter in range(repair_range):
+                    s = trace[v_x - repair_iter + 1]
+                    if s.state['output']['value'] == 'SLOWER':  
+                        s.state['output']['value'] = 'FASTER'
+                        print (f'Repair Suggestion: at index={v_x - repair_iter}, action SLOWER needs to be updated to FASTER')
+                        repaired_samples_json.append(s.state)           
+            elif action_taken_at_violation == 'FASTER': # Correct action at the violation time
+                repair_idx = v_x
+                while repair_idx >= 0:
+                    s = trace[repair_idx]
+                    a = s.state['output']['value']
+                    if a != action_taken_at_violation: 
+                        # Switch to the correct action earlier
+                        s.state['output']['value'] = 'FASTER'
+                        repaired_samples_json.append(s.state)
+                        print (f'Repair Suggestion: at index={repair_idx}, action SLOWER needs to be updated to FASTER')
+                        break
+                    repair_idx -= 1
+            else:
+                raise Exception('unexpected action type')
+        else:
+            raise Exception('unexpected violation type')
+    return repaired_samples_json
 
 
 if __name__ == "__main__":
@@ -152,8 +246,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # define specs
-    specs = [Spec('include', 0, 10.5, 45, 23, 5, 'green'), Spec('include', 45, 23, 100, 29.8, 3, 'green'), Spec(
-        'include', 100, 30, 300, 30, 2, 'green')  # , Spec('exclude', 0, 2.5, 300, 2.5, 5, 'red')
+    specs = [Spec('include', 0, 10.5, 45, 23, 5, 'green'), Spec('include', 45, 23, 100, 29.8, 5, 'green'), Spec(
+        'include', 100, 30, 300, 30, 5, 'green')  # , Spec('exclude', 0, 2.5, 300, 2.5, 5, 'red')
     ]
 
     if sys.argv[1] == 'gt':
@@ -219,10 +313,13 @@ if __name__ == "__main__":
         # repaired_samples_json = random_repair_using_gt(
         #    policy_ground_truth, trace_ldips, total_repair_cnt=10)
         # 2
-        repaired_samples_json = repair_by_human_and_gt(
-            policy_ground_truth, trace_ldips)
-        # 3
-        # repaired_samples_json = repair_by_spec(trace_ldips)
+        # repaired_samples_json = repair_by_human_and_gt(
+        #    policy_ground_truth, trace_ldips)
+        #
+        # 3 semi-automatic repair
+        #repaired_samples_json = 
+        repaired_samples_json = semi_automatic_repair(
+            specs=specs, trace=trace_ldips)
 
         # write the repaired samples to a file to be used in the next iterations
         with open('demos/repaired_samples.json', "w") as f:
