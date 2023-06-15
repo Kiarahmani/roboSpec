@@ -1,0 +1,210 @@
+[
+    {
+        "start": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "start",
+            "value": "SLOWER"
+        },
+        "x_diff": {
+            "dim": [
+                1,
+                0,
+                0
+            ],
+            "type": "NUM",
+            "name": "x_diff",
+            "value": 11.7918701171875
+        },
+        "v_diff": {
+            "dim": [
+                1,
+                -1,
+                0
+            ],
+            "type": "NUM",
+            "name": "v_diff",
+            "value": 2.9342174530029297
+        },
+        "acc": {
+            "dim": [
+                1,
+                -2,
+                0
+            ],
+            "type": "NUM",
+            "name": "acc",
+            "value": 2.0
+        },
+        "output": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "output",
+            "value": "SLOWER"
+        }
+    },
+    {
+        "start": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "start",
+            "value": "SLOWER"
+        },
+        "x_diff": {
+            "dim": [
+                1,
+                0,
+                0
+            ],
+            "type": "NUM",
+            "name": "x_diff",
+            "value": 30.00146484375
+        },
+        "v_diff": {
+            "dim": [
+                1,
+                -1,
+                0
+            ],
+            "type": "NUM",
+            "name": "v_diff",
+            "value": 0.0849456787109375
+        },
+        "acc": {
+            "dim": [
+                1,
+                -2,
+                0
+            ],
+            "type": "NUM",
+            "name": "acc",
+            "value": 2.0
+        },
+        "output": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "output",
+            "value": "FASTER"
+        }
+    },
+    {
+        "start": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "start",
+            "value": "FASTER"
+        },
+        "x_diff": {
+            "dim": [
+                1,
+                0,
+                0
+            ],
+            "type": "NUM",
+            "name": "x_diff",
+            "value": 27.99224853515625
+        },
+        "v_diff": {
+            "dim": [
+                1,
+                -1,
+                0
+            ],
+            "type": "NUM",
+            "name": "v_diff",
+            "value": 1.9335899353027344
+        },
+        "acc": {
+            "dim": [
+                1,
+                -2,
+                0
+            ],
+            "type": "NUM",
+            "name": "acc",
+            "value": 2.0
+        },
+        "output": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "output",
+            "value": "FASTER"
+        }
+    },
+    {
+        "start": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "start",
+            "value": "FASTER"
+        },
+        "x_diff": {
+            "dim": [
+                1,
+                0,
+                0
+            ],
+            "type": "NUM",
+            "name": "x_diff",
+            "value": 30.00335693359375
+        },
+        "v_diff": {
+            "dim": [
+                1,
+                -1,
+                0
+            ],
+            "type": "NUM",
+            "name": "v_diff",
+            "value": -0.08491134643554688
+        },
+        "acc": {
+            "dim": [
+                1,
+                -2,
+                0
+            ],
+            "type": "NUM",
+            "name": "acc",
+            "value": 2.0
+        },
+        "output": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "output",
+            "value": "SLOWER"
+        }
+    }
+]

@@ -49,5 +49,9 @@ class Spec:
         else:
             raise Exception('unexpected spec type')
 
+
+    def get_x_range(self):
+        return self.x1, self.x2
+
     def get_coordinates(self):
         return self.x_series, self.y1_series, self.y2_series

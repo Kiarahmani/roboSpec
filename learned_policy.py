@@ -14,8 +14,8 @@ def policy_ldips(state):
 
 
     ### PIPS LEARNED EXPRESSIONS
-    slow_to_fast = x + v**2/a > 29.005069732666016
-    fast_to_slow = ((v < 1.2955089807510376) and (((x - x) - (x + x)) > -64.5086669921875))
+    slow_to_fast = (((((v)**2 / a) + x) > 27.988557815551758) and (v > -1.8269059658050537))
+    fast_to_slow = ((v < 0.011122999712824821) or (((x + x) + ((v)**2 / a)) > 67.04056549072266))
 
     ###
 

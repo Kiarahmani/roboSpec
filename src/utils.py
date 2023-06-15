@@ -2,6 +2,26 @@ import json
 import numpy as np
 
 
+def ranges(data):
+    result = []
+    #print (f'{data=}')
+    if not data:
+    #    print ('no data')
+        return result
+    idata = iter(data)
+    first = prev = next(idata)
+    for following in idata:
+        if following - prev == 1:
+            prev = following
+        else:
+            result.append((first, prev + 1))
+            first = prev = following
+    # There was either exactly 1 element and the loop never ran,
+    # or the loop just normally ended and we need to account
+    # for the last remaining range.
+    result.append((first, prev+1))
+    return result
+
 def pretty_str_state(state, iter):
     pre_action = state.state['start']['value']
     post_action = state.state['output']['value']

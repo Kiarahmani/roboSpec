@@ -94,11 +94,15 @@ def plot_single_series(trace, gt_policy, specs, directory, synthesis_data):
     plt.text(3, 66, f'{v_diff_0=}', va='bottom', fontsize=8)
 
     if 'no_samples' in synthesis_data:
-        no_samples = synthesis_data['no_samples']
-        plt.text(3, 64, f'{no_samples=}', va='bottom', fontsize=8)
+        pos_samples = synthesis_data['no_samples']
+        plt.text(3, 64, f'{pos_samples=}', va='bottom', fontsize=8)
         with open('logs/learned_expressions.txt', "r") as file:
             exps = file.read()
             plt.text(52, 66, exps[:-1], va='bottom', fontsize=8)
+    if 'neg_samples' in synthesis_data:
+        neg_samples = synthesis_data['neg_samples']
+        plt.text(3, 62, f'{neg_samples=}', va='bottom', fontsize=8)
+    
 
 
     plt.xticks(range(0, 300, 10),fontsize=6)

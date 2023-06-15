@@ -1,0 +1,107 @@
+[
+    {
+        "start": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "start",
+            "value": "SLOWER"
+        },
+        "x_diff": {
+            "dim": [
+                1,
+                0,
+                0
+            ],
+            "type": "NUM",
+            "name": "x_diff",
+            "value": 15
+        },
+        "v_diff": {
+            "dim": [
+                1,
+                -1,
+                0
+            ],
+            "type": "NUM",
+            "name": "v_diff",
+            "value": 2.9342174530029297
+        },
+        "acc": {
+            "dim": [
+                1,
+                -2,
+                0
+            ],
+            "type": "NUM",
+            "name": "acc",
+            "value": 2.0
+        },
+        "output": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "output",
+            "value": "FASTER"
+        }
+    }
+    ,
+    {
+        "start": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "start",
+            "value": "FASTER"
+        },
+        "x_diff": {
+            "dim": [
+                1,
+                0,
+                0
+            ],
+            "type": "NUM",
+            "name": "x_diff",
+            "value": 28
+        },
+        "v_diff": {
+            "dim": [
+                1,
+                -1,
+                0
+            ],
+            "type": "NUM",
+            "name": "v_diff",
+            "value": 0.09342174530029297
+        },
+        "acc": {
+            "dim": [
+                1,
+                -2,
+                0
+            ],
+            "type": "NUM",
+            "name": "acc",
+            "value": 2.0
+        },
+        "output": {
+            "dim": [
+                0,
+                0,
+                0
+            ],
+            "type": "STATE",
+            "name": "output",
+            "value": "SLOWER"
+        }
+    }
+]

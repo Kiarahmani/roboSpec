@@ -145,3 +145,8 @@ with open(file_path, "w") as file:
 # Log the expressions
 with open('logs/learned_expressions.txt', "w") as file:
     file.write(exps.replace('    ',''))
+
+print ('-'*65)
+print ("Learned Expressions:\n")
+print (exps)
+print ('-'*65)
