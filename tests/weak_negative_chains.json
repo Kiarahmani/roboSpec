@@ -1,0 +1,127 @@
+[{  
+    "start": {
+        "dim": [
+            0,
+            0,
+            0
+        ],
+        "type": "STATE",
+        "name": "start",
+        "value": "SLOWER"
+    },
+    "x_diff": {
+        "dim": [
+            1,
+            0,
+            0
+        ],
+        "type": "NUM",
+        "name": "x_diff",
+        "value": 15
+    },
+    "acc": {
+        "dim": [
+            1,
+            -2,
+            0
+        ],
+        "type": "NUM",
+        "name": "acc",
+        "value": 2.0
+    },
+    "output": {
+        "dim": [
+            0,
+            0,
+            0
+        ],
+        "type": "STATE",
+        "name": "output",
+        "value": "FASTER"
+    }
+}, 
+{
+    "start": {
+        "dim": [
+            0,
+            0,
+            0
+        ],
+        "type": "STATE",
+        "name": "start",
+        "value": "SLOWER"
+    },
+    "x_diff": {
+        "dim": [
+            1,
+            0,
+            0
+        ],
+        "type": "NUM",
+        "name": "x_diff",
+        "value": 17
+    },
+    "acc": {
+        "dim": [
+            1,
+            -2,
+            0
+        ],
+        "type": "NUM",
+        "name": "acc",
+        "value": 2.0
+    },
+    "output": {
+        "dim": [
+            0,
+            0,
+            0
+        ],
+        "type": "STATE",
+        "name": "output",
+        "value": "FASTER"
+    }
+},
+{
+    "start": {
+        "dim": [
+            0,
+            0,
+            0
+        ],
+        "type": "STATE",
+        "name": "start",
+        "value": "SLOWER"
+    },
+    "x_diff": {
+        "dim": [
+            1,
+            0,
+            0
+        ],
+        "type": "NUM",
+        "name": "x_diff",
+        "value": 19
+    },
+    "acc": {
+        "dim": [
+            1,
+            -2,
+            0
+        ],
+        "type": "NUM",
+        "name": "acc",
+        "value": 2.0
+    },
+    "output": {
+        "dim": [
+            0,
+            0,
+            0
+        ],
+        "type": "STATE",
+        "name": "output",
+        "value": "FASTER"
+    }
+}
+]

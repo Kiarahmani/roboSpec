@@ -18,17 +18,7 @@
             ],
             "type": "NUM",
             "name": "x_diff",
-            "value": 11.7918701171875
-        },
-        "v_diff": {
-            "dim": [
-                1,
-                -1,
-                0
-            ],
-            "type": "NUM",
-            "name": "v_diff",
-            "value": 2.9342174530029297
+            "value": 11
         },
         "acc": {
             "dim": [
@@ -70,17 +60,7 @@
             ],
             "type": "NUM",
             "name": "x_diff",
-            "value": 30.00146484375
-        },
-        "v_diff": {
-            "dim": [
-                1,
-                -1,
-                0
-            ],
-            "type": "NUM",
-            "name": "v_diff",
-            "value": 0.0849456787109375
+            "value": 30
         },
         "acc": {
             "dim": [
@@ -122,17 +102,7 @@
             ],
             "type": "NUM",
             "name": "x_diff",
-            "value": 27.99224853515625
-        },
-        "v_diff": {
-            "dim": [
-                1,
-                -1,
-                0
-            ],
-            "type": "NUM",
-            "name": "v_diff",
-            "value": 1.9335899353027344
+            "value": 27
         },
         "acc": {
             "dim": [
@@ -174,17 +144,7 @@
             ],
             "type": "NUM",
             "name": "x_diff",
-            "value": 30.00335693359375
-        },
-        "v_diff": {
-            "dim": [
-                1,
-                -1,
-                0
-            ],
-            "type": "NUM",
-            "name": "v_diff",
-            "value": -0.08491134643554688
+            "value": 30
         },
         "acc": {
             "dim": [
