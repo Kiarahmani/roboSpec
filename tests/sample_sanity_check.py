@@ -83,5 +83,8 @@ with open('pips/highway_input_demos.json', 'r') as file:
             gt_consistent += 1
         else:
             print('INCONSISTENCY DETECTED (gt and samples)!')
-
-    print(f'\n\nTotal={len(samples)}, Consistent(learned)={round(consistent/len(samples),4)*100}%, Consistent(gt)={round(gt_consistent/len(samples),4)*100}%')
+    
+    if len(samples) == 0:
+        print('no samples provided')
+    else: 
+        print(f'\n\nTotal={len(samples)}, Consistent(learned)={round(consistent/len(samples),4)*100}%, Consistent(gt)={round(gt_consistent/len(samples),4)*100}%')
