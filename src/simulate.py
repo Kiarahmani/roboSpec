@@ -7,6 +7,13 @@ class LDIPSState(object):
 
     def get(self, name):
         return self.state[name]["value"]
+    def set(self, name, value):
+        self.state[name]["value"] = value
+
+    def pretty_print(self):
+        return 'x_diff=' + str(round(self.get('x_diff'), 2)).ljust(5, ' ') + '     ' + \
+            'v_diff=' + str(round(self.get('v_diff'), 2)).ljust(5, ' ') + \
+                '     ' + str(self.get('start')) + '->' + str(self.get('output'))
 
 
 def dimensionless_template(name, value):
@@ -83,6 +90,7 @@ def compute_ldips_state(obs, prev_action):
         }
     )
 
+
 def compute_ldips_sample(obs, prev_action, action):
     """Compute the Full LDIPS sample in LDIPS format (json object) from the given observation"""
     return LDIPSState(
@@ -92,7 +100,6 @@ def compute_ldips_sample(obs, prev_action, action):
             **output_template(action),
         }
     )
-
 
 
 def run_simulation(policy, show=False, env=None, init_obs=None):

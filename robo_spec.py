@@ -94,8 +94,6 @@ def flip_action(a):
     return 'SLOWER' if a == 'FASTER' else 'FASTER'
 
 # Repair using GT: the human chooses which samples to repair and how many
-
-
 def repair_by_human_and_gt(gt_policy, ldips_trace, over_ride_gt=False):
     repaired_samples_json = []
     while True:
@@ -284,6 +282,66 @@ def generate_negative_examples_by_human(specs, trace):
     return negative_examples
 
 
+
+# a repair which only flips one transition before each violation incidence 
+
+def single_repair_auto (spec_violations, trace):
+    result = []
+    print ('begin single_repair_auto')
+    #print ('given trace:')
+    #for i, example in enumerate(trace):
+    #    print (str(i).ljust(3,' '), example.pretty_print())
+    print ('given spec violations:')
+    
+    # get the indexes to flip
+    def single_repair_auto_help(current_violation_ranges, action_to_flip):
+        if current_violation_ranges == []: 
+            return []
+        result = []
+        #print (f'{current_violation_ranges=}')
+        for rng in ranges(current_violation_ranges):
+            print ('violation range:',rng)
+            first_violation_idx = min (rng)
+            flip_idx = first_violation_idx - 1
+            action = trace[flip_idx].get('output')
+            while action != action_to_flip:
+                flip_idx -= 1
+                action = trace[flip_idx].get('output')
+            result.append(flip_idx)
+
+        return result
+
+    def repair(trace, repair_idx, repair_action):
+        if repair_idx == -1:
+            return None
+        sample = trace[repair_idx]
+        sample.set('output',repair_action)
+        return sample
+
+    for spec in spec_violations:       
+        # repair any L violations 
+        flip_idxs = single_repair_auto_help(spec_violations[spec]['L'], 'FASTER')
+        if flip_idxs != []:
+            for idx in flip_idxs:
+                print ('L:found an index whose action must be flipped: ', idx, ' old=FASTER  new=SLOWER')
+                repaired_sample = repair(trace, idx, 'SLOWER')
+                if repaired_sample:
+                    result.append(repaired_sample.state)
+        
+        # repair any U violations 
+        flip_idxs = single_repair_auto_help(spec_violations[spec]['U'], 'SLOWER')
+        if flip_idxs != []:
+            for idx in flip_idxs:
+                print ('U:found an index whose action must be flipped: ', idx, ' old=SLOWER  new=FASTER')
+                repaired_sample = repair(trace, idx, 'FASTER')
+                if repaired_sample:
+                    result.append(repaired_sample.state)
+    return result
+
+
+
+
+
 if __name__ == "__main__":
     # set the desired policy
     if len(sys.argv) != 2:
@@ -370,20 +428,19 @@ if __name__ == "__main__":
 
         # analyze the trace w.r.t. the specs
         analysis_result = identify_spec_violations(specs=specs, trace=trace_ldips)
+        print ('Analysis Results:')
         for k in analysis_result:
             for tp in {'U','L'}:
                 print(k.ljust(50, ' '), tp, ':  ' , ranges(analysis_result[k][tp]))
         print ('-'*75)
 
 
-        repaired_samples_json = []
-        negative_samples_json = generate_negative_examples_by_human(
-            specs, trace_ldips)
-
+        positive_samples_json = single_repair_auto(spec_violations=analysis_result, trace=trace_ldips)
+        negative_samples_json = []
 
         # write the repaired samples to a file to be used in the next iterations
         with open('demos/repaired_samples.json', "w") as f:
-            f.write(json.dumps(repaired_samples_json))
+            f.write(json.dumps(positive_samples_json))
 
         # write the negative samples to a file to be used in the next iterations
         with open('demos/negative_samples.json', "w") as f:

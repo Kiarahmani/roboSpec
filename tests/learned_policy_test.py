@@ -4,8 +4,9 @@ import json
 def policy(start_a, x, v):
     assert not v
 
-    slow_to_fast = x > 12.0
+    slow_to_fast = x > 15.0
     fast_to_slow = x > 27.0
+
 
     if start_a == 'SLOWER':
         if slow_to_fast:
@@ -76,9 +77,9 @@ if __name__ == "__main__":
 # To run pips on the positive_samples.json file  
 cd ~/roboSpec
 rm ./pips/solutions/*.json 
-./pips/bin/ldips-l3 -lib_file pips/ops/highway_op_library.json  -neg_ex_file tests/negative_samples.json -min_accuracy 1 -multi_thread -ex_file tests/positive_samples.json -out_dir "pips/solutions/" -debug -feat_depth 3 -sketch_depth 3 -window_size 0 --neg_weak_chain_file tests/weak_negative_chains.json
+./pips/bin/ldips-l3 -lib_file pips/ops/highway_op_library.json  -neg_ex_file tests/negative_samples.json -min_accuracy 1 -ex_file tests/positive_samples.json -out_dir "pips/solutions/" -debug -feat_depth 3 -sketch_depth 3 -window_size 0 --neg_weak_chain_file tests/weak_negative_chains.json
 python scripts/translate_solutions_to_python.py
 
 # Single Cmd:
-cd ~/roboSpec && rm ./pips/solutions/*.json && ./pips/bin/ldips-l3 --neg_weak_chain_file tests/weak_negative_chains.json -neg_ex_file tests/negative_samples.json -lib_file pips/ops/highway_op_library.json  -min_accuracy 1 -multi_thread -ex_file tests/positive_samples.json -out_dir "pips/solutions/" -debug -feat_depth 3 -sketch_depth 3 -window_size 0 && python scripts/translate_solutions_to_python.py
+cd ~/roboSpec && rm ./pips/solutions/*.json && ./pips/bin/ldips-l3 --neg_weak_chain_file tests/weak_negative_chains.json -neg_ex_file tests/negative_samples.json -lib_file pips/ops/highway_op_library.json  -min_accuracy 1 -ex_file tests/positive_samples.json -out_dir "pips/solutions/" -debug -feat_depth 3 -sketch_depth 3 -window_size 0 && python scripts/translate_solutions_to_python.py
 """
